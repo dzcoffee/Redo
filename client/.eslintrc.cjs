@@ -5,7 +5,10 @@ module.exports = {
   root: true,
   extends: [
     'plugin:vue/vue3-essential',
+    // 'plugin:@typescript-eslint/recommended',
     'eslint:recommended',
+    // 'plugin:vue/vue3-recommended',
+    'plugin:prettier/recommended',
     '@vue/eslint-config-typescript',
     '@vue/eslint-config-prettier/skip-formatting'
   ],
