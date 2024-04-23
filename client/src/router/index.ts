@@ -1,15 +1,15 @@
 import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router'
-import HomeView from '../views/HomeView.vue'
+import MainLayout from '@/views/MainLayout.vue'
 
 const subRoutes: RouteRecordRaw[] = [
   { path: '/memo', name: 'Memo', component: () => import('@/views/memo/MainPage.vue') },
-  { path: 'memo/create', name: 'MemoCreate', component: HomeView },
-  { path: 'memo/edit', name: 'MemoEdit', component: HomeView },
-  { path: 'memo/:id', name: 'MemoView', component: HomeView },
-  { path: '/quiz', name: 'Quiz', component: HomeView },
-  { path: 'quiz/create', name: 'QuizCreate', component: HomeView },
-  { path: 'quiz/game', name: 'QuizGame', component: HomeView },
-  { path: 'quiz/archive', name: 'QuizArchive', component: HomeView }
+  { path: 'memo/create', name: 'MemoCreate', component: MainLayout },
+  { path: 'memo/edit', name: 'MemoEdit', component: MainLayout },
+  { path: 'memo/:id', name: 'MemoView', component: MainLayout },
+  { path: '/quiz', name: 'Quiz', component: MainLayout },
+  { path: 'quiz/create', name: 'QuizCreate', component: MainLayout },
+  { path: 'quiz/game', name: 'QuizGame', component: MainLayout },
+  { path: 'quiz/archive', name: 'QuizArchive', component: MainLayout }
 ]
 
 const router = createRouter({
@@ -18,7 +18,7 @@ const router = createRouter({
     {
       path: '/',
       name: 'home',
-      component: HomeView,
+      component: MainLayout,
       children: subRoutes
     },
     {
@@ -29,15 +29,7 @@ const router = createRouter({
     {
       path: '/signup',
       name: 'signup',
-      component: HomeView // SignUp
-    },
-    {
-      path: '/about',
-      name: 'about',
-      // route level code-splitting
-      // this generates a separate chunk (About.[hash].js) for this route
-      // which is lazy-loaded when the route is visited.
-      component: () => import('@/views/AboutView.vue')
+      component: MainLayout // SignUp
     },
     {
       name: 'NotFound',
