@@ -3,19 +3,19 @@
     <v-row class="h-100 pa-0 ma-0">
       <v-col id="welcome-pane" class="pa-0 ma-0 d-flex flex-column align-center justify-center">
         <v-img :width="300" :max-height="300" src="src/assets/logo.png" class="ma-0"></v-img>
-        <h1>Redo가 제공하는 퀴즈로</h1>
+        <span class="intro text-h6 text-md-h5 text-lg-h4">Redo가 제공하는 퀴즈로</span>
         <span>
-          <h1 class="d-inline">새로운 </h1>
-          <h1 class="d-inline">학습</h1>
-          <h1 class="d-inline">을 경험하세요!</h1>
+          <span class="intro d-inline text-h6 text-md-h5 text-lg-h4">새로운 </span>
+          <span class="intro d-inline keyword text-h6 text-md-h5 text-lg-h4">학습</span>
+          <span class="intro d-inline text-h6 text-md-h5 text-lg-h4">을 경험하세요!</span>
         </span>
 
       </v-col>
       <v-col id="login-pane" class="pa-0 ma-0 d-flex flex-column align-center justify-center">
-        <input class="input account mb-2" placeholder="아이디">
-        <input class="input password mt-2 mb-4" placeholder="비밀번호" @keyup.enter="handleLogin">
-        <v-btn class="auth-btn ma-2" @click="handleLogin">로그인</v-btn>
-        <v-btn class="auth-btn ma-2">회원 가입</v-btn>
+        <input class="input mb-2 text-subtitle-1 text-md-h6 text-lg-h5" placeholder="아이디">
+        <input class="input mt-2 mb-4 text-subtitle-1 text-md-h6 text-lg-h5" placeholder="비밀번호" @keyup.enter="handleLogin">
+        <v-btn class="auth-btn ma-2 text-subtitle-1 text-md-h6 text-lg-h5" @click="handleLogin">로그인</v-btn>
+        <v-btn class="auth-btn ma-2 text-subtitle-1 text-md-h6 text-lg-h5">회원 가입</v-btn>
       </v-col>
     </v-row>
   </v-container>
@@ -47,15 +47,22 @@ const handleLogin = (): void => {
   background-color: #0C3324;
   color: white;
   width: 30%;
+  min-width: 80px;
   height: 48px;
   font-size: 24px;
   font-weight: 600;
 }
 .input {
   width: 30%;
+  min-width: 80px;
   height: 48px;
   border-radius: 5px;
   background-color: white;
-  font-size: 24px;
+}
+.intro{
+  font-weight: 600;
+}
+.keyword{
+  color: #67A58D;
 }
 </style>
