@@ -1,9 +1,16 @@
+<template>
+  <v-app id="app"></v-app>
+</template>
+
 <script setup lang="ts">
-import TheWelcome from '../components/TheWelcome.vue'
 </script>
 
-<template>
-  <main>
-    <TheWelcome />
-  </main>
-</template>
+<style scoped>
+#app {
+  width: 100vh;
+  height: 100vh;
+  overflow-x: auto;
+  overflow-y: hidden;
+  margin: 0;
+}
+</style>
