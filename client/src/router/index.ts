@@ -3,10 +3,10 @@ import MainLayout from '@/views/MainLayout.vue'
 
 const subRoutes: RouteRecordRaw[] = [
   { path: '/memo', name: 'Memo', component: () => import('@/views/memo/MainPage.vue') },
-  { path: 'memo/create', name: 'MemoCreate', component: MainLayout },
-  { path: 'memo/edit', name: 'MemoEdit', component: MainLayout },
-  { path: 'memo/:id', name: 'MemoView', component: MainLayout },
-  { path: '/quiz', name: 'Quiz', component: MainLayout },
+  { path: 'memo/create', name: 'MemoCreate', component: () => import('@/views/memo/MainPage.vue') },
+  { path: 'memo/edit', name: 'MemoEdit', component: () => import('@/views/memo/MainPage.vue') },
+  { path: 'memo/:id', name: 'MemoView', component: () => import('@/views/memo/MainPage.vue') },
+  { path: '/quiz', name: 'Quiz', component: () => import('@/views/memo/MainPage.vue') },
   { path: 'quiz/create', name: 'QuizCreate', component: MainLayout },
   { path: 'quiz/game', name: 'QuizGame', component: MainLayout },
   { path: 'quiz/archive', name: 'QuizArchive', component: MainLayout }
