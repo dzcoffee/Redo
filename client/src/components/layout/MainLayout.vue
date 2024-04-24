@@ -4,12 +4,12 @@
             <img width="50" src="@/assets/logo.png" class="ma-0"/>
             <span class="hello-msg">안녕하세요, 회원님</span>
         </v-row>
-        <v-btn class="service-btn mt-1 mb-2" elevation="1">퀴즈 풀기</v-btn>
-        <v-btn class="service-btn my-2" elevation="1">메모 생성</v-btn>
+        <v-btn class="service-btn mt-1 mb-2" elevation="1" @click="moveToQuiz">퀴즈 풀기</v-btn>
+        <v-btn class="service-btn my-2" elevation="1" @click="moveToMemoCreate">메모 생성</v-btn>
     </div>
     <div class="panel memo-list">
-        <v-btn class="memo-btn my-1" elevation="0" :ripple="false">자료구조</v-btn>
-        <v-btn class="memo-btn my-1" elevation="0" :ripple="false">자료구조</v-btn>
+        <v-btn class="memo-btn my-1" elevation="0" :ripple="false" @click="() => moveToMemo('자료구조')">자료구조</v-btn>
+        <v-btn class="memo-btn my-1" elevation="0" :ripple="false" @click="() => moveToMemo('소프트웨어공학')">소프트웨어공학</v-btn>
     </div>
     <div class="panel logout-pane">
         <v-btn class="service-btn my-2" elevation="1" @click="handleLogout">로그아웃</v-btn>
@@ -21,7 +21,16 @@ import { useRouter } from 'vue-router';
 
 const router = useRouter();
 const handleLogout = (): void => {
-  router.push('/login');
+    router.push('/login');
+}
+const moveToMemo = (number: string): void => {
+    router.push(`/memo/${number}`);
+}
+const moveToMemoCreate = (): void => {
+    router.push(`/memo/create`);
+}
+const moveToQuiz = (): void => {
+    router.push('/quiz');
 }
 </script>
 
@@ -43,7 +52,7 @@ const handleLogout = (): void => {
     justify-content: center;
 }
 .memo-btn{
-    width: 216px;
+    width: 225px;
     background-color: #335447;
     border-radius: 10px;
     color: white;
