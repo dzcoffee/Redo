@@ -17,7 +17,9 @@
 
 ```bash
 npm install --global yarn
+yarn global add json-server
 ```
+`yarn global add json-server`는 **임시로 사용할 더미 데이터를 요청하는 API 기술**이어서 설치하지 않아도 좋습니다.
 
 ### 실행 방법
 
