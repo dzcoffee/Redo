@@ -4,7 +4,7 @@
         <MainLayout></MainLayout>
       </v-col>
       <v-col id="interact-pane" class="pa-0 ma-0 d-flex flex-column">
-        <router-view/>
+        <router-view :key="route.fullPath"/>
       </v-col>
     </v-row>
 </template>

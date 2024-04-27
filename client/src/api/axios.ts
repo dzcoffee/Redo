@@ -47,7 +47,7 @@ const baseResponseInterceptor = (instance: AxiosInstance): void => {
       if (err.config.method === 'post') {
         postPending = false;
       }
-      console.log(err.response.data.error);
+      console.log(err.response);
       return Promise.reject(err);
     }
   );
