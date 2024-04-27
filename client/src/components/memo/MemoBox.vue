@@ -3,6 +3,7 @@
 </template>
 
 <script setup lang="ts">
+import { onMounted } from 'vue';
 import { storeToRefs } from 'pinia';
 import { useMarkdownStore } from '@/stores/markdownStore';
 
@@ -18,6 +19,8 @@ const placeholder = `메모 내용을 적어주세요...
 const changeContent = (e: Event): void => {
   content.value = (e.target as HTMLTextAreaElement).value;
 }
+
+onMounted(() => useMarkdownStore().$reset());
 </script>
 
 <style scoped>

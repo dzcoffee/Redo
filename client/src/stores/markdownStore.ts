@@ -6,9 +6,15 @@ export const useMarkdownStore = defineStore('markdown', () => {
   const content = ref('')
   const categories = ref<string[]>([]);
 
+  const $reset = (): void => {
+    title.value = '';
+    content.value = '';
+    categories.value = [];
+  }
   return {
     title,
     content,
-    categories
+    categories,
+    $reset
   }
 })
