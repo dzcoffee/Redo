@@ -1,11 +1,11 @@
 <template>
     <v-col class="pa-0 my-2 d-flex align-center justify-space-between">
-        <label class="mr-7">{{ title }}</label>
+        <label class="mr-7 title">{{ title }}</label>
         <input :type="isSecure ? 'password' : 'text'" class="info-input px-1" :style="{'border-color': validColor}" :placeholder="placeholder">
         <v-btn v-if="buttonName" class="ml-7 check-btn" elevation="0" @click="handler">{{ buttonName }}</v-btn>
     </v-col>
     <v-col class="ma-0 pa-0 py-1">
-        <span class="valid-text" :style="{color: validColor}">사용 가능합니다.</span>
+        <span class="valid-text" :style="{color: validColor}">{{ validText }}</span>
     </v-col>
 </template>
 
@@ -16,7 +16,8 @@ const {title, placeholder, buttonName, handler} = defineProps({
     title: {type: String, default: "제목", "required": false},
     placeholder: {type: String, default: "입력 조건", "required": false},
     buttonName: {type: String, default: "", "required": false},
-    handler: {type: Function, required:false}
+    handler: {type: Function, required:false},
+    validText: {type: String, default: "사용 가능합니다.", required: false}
 })
 
 const isValid = ref(true);
@@ -43,6 +44,9 @@ const isSecure = computed(() => title.includes("비밀번호"));
 }
 .info-input::placeholder{
     color: #67A58D;
+}
+.title{
+    font-weight: 600;
 }
 .valid-text{
     color: #67A58D;

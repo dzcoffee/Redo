@@ -8,8 +8,7 @@
         <v-btn class="service-btn memo-create-btn my-2" elevation="1" @click="moveToMemoCreate">메모 생성</v-btn>
     </div>
     <div class="panel memo-list">
-        <v-btn class="memo-btn my-1" elevation="0" :ripple="false" @click="() => moveToMemo('자료구조')">자료구조</v-btn>
-        <v-btn class="memo-btn my-1" elevation="0" :ripple="false" @click="() => moveToMemo('소프트웨어공학')">소프트웨어공학</v-btn>
+        <v-btn v-for="memo, index in memos" :key="index" class="memo-btn my-1" elevation="0" :ripple="false" @click="() => moveToMemo(memo.title)">{{ memo.title }}</v-btn>
     </div>
     <div class="panel logout-pane">
         <v-btn class="service-btn my-2" elevation="1" @click="handleLogout">로그아웃</v-btn>
@@ -17,8 +16,11 @@
 </template>
 
 <script setup lang="ts">
+import { storeToRefs } from 'pinia';
+import { useMemoStore } from '@/stores/memoStore';
 import { useRouter } from 'vue-router';
 
+const {memos} = storeToRefs(useMemoStore());
 const router = useRouter();
 const handleLogout = (): void => {
     router.push('/login');
@@ -32,7 +34,6 @@ const moveToMemoCreate = (): void => {
 const moveToQuiz = (): void => {
     router.push('/quiz');
 }
-
 </script>
 
 <style scoped>
