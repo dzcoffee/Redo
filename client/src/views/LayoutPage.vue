@@ -1,9 +1,9 @@
 <template>
     <v-row class="h-100 pa-0 ma-0" no-gutters>
-      <v-col id="welcome-pane" cols="auto" class="pa-0 ma-0 d-flex flex-column align-center justify-start">
+      <v-col v-if="$route.path !== '/memo/create'" id="welcome-pane" cols="auto" class="pa-0 ma-0 d-flex flex-column align-center justify-start">
         <MainLayout></MainLayout>
       </v-col>
-      <v-col id="login-pane" cols="auto" class="pa-0 ma-0 d-flex flex-column align-center justify-center">
+      <v-col id="interact-pane" class="pa-0 ma-0 d-flex flex-column">
         <router-view/>
       </v-col>
     </v-row>
@@ -23,9 +23,8 @@ import MainLayout from '@/components/layout/MainLayout.vue';
   min-width: 260px;
   background-color: #335447;
 }
-#login-pane {
+#interact-pane {
   height: 100%;
-  width: calc(100% - 260px);
   background-color: #FBFDFC;
 }
 </style>

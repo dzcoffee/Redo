@@ -5,7 +5,7 @@
             <span class="hello-msg">안녕하세요, 회원님</span>
         </v-row>
         <v-btn class="service-btn mt-1 mb-2" elevation="1" @click="moveToQuiz">퀴즈 풀기</v-btn>
-        <v-btn class="service-btn my-2" elevation="1" @click="moveToMemoCreate">메모 생성</v-btn>
+        <v-btn class="service-btn memo-create-btn my-2" elevation="1" @click="moveToMemoCreate">메모 생성</v-btn>
     </div>
     <div class="panel memo-list">
         <v-btn class="memo-btn my-1" elevation="0" :ripple="false" @click="() => moveToMemo('자료구조')">자료구조</v-btn>
@@ -32,6 +32,7 @@ const moveToMemoCreate = (): void => {
 const moveToQuiz = (): void => {
     router.push('/quiz');
 }
+
 </script>
 
 <style scoped>
@@ -72,10 +73,13 @@ const moveToQuiz = (): void => {
 }
 .service-btn{
     width: 90%;
-    background-color: #335447;
-    color: white;
     font-size: 18px;
     font-weight: 600;
+    background-color: #FDF8EC;
+}
+.memo-create-btn{
+    background-color: #335447;
+    color: white;
 }
 .user-info{
     width:100%;
