@@ -1,0 +1,24 @@
+{
+    "memo": [
+        {
+            "id": 1,
+            "title": "링크드 리스트",
+            "category": [
+                "자료구조"
+            ],
+            "createdTime": 1714219143300,
+            "updatedTime": 1714219143300,
+            "content": "<h1>링크드 리스트란?</h1>"
+        },
+        {
+            "id": 2,
+            "title": "Git",
+            "category": [
+                "소프트웨어공학"
+            ],
+            "createdTime": 1714219143300,
+            "updatedTime": 1714219143300,
+            "content": "<h1>Git 개요</h1>"
+        }
+    ]
+}
