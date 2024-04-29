@@ -6,9 +6,9 @@ const subRoutes: RouteRecordRaw[] = [
   { path: 'memo/create', name: 'MemoCreate', component: () => import('@/views/memo/MemoCreatePage.vue') },
   { path: 'memo/edit', name: 'MemoEdit', component: () => import('@/views/memo/MainPage.vue') },
   { path: 'memo/:id', name: 'MemoView', component: () => import('@/views/memo/MemoPage.vue') },
-  { path: '/quiz', name: 'Quiz', component: () => import('@/views/quiz/QuizPage.vue') },
+  { path: '/quiz', name: 'Quiz', component: () => import('@/views/quiz/QuizSettingPage.vue') },
   { path: 'quiz/create', name: 'QuizCreate', component: LayoutPage },
-  { path: 'quiz/game', name: 'QuizGame', component: LayoutPage },
+  { path: 'quiz/game', name: 'QuizGame', component: () => import('@/views/quiz/QuizPage.vue') },
   { path: 'quiz/archive', name: 'QuizArchive', component: LayoutPage }
 ]
 
