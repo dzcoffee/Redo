@@ -1,12 +1,12 @@
 <template>
-    <v-row class="h-100 pa-0 ma-0" no-gutters>
-      <v-col v-if="$route.path !== '/memo/create'" id="welcome-pane" cols="auto" class="pa-0 ma-0 d-flex flex-column align-center justify-start">
-        <MainLayout></MainLayout>
-      </v-col>
-      <v-col id="interact-pane" class="pa-0 ma-0 d-flex flex-column">
-        <router-view :key="route.fullPath"/>
-      </v-col>
-    </v-row>
+  <v-row class="h-100 pa-0 ma-0" no-gutters>
+    <v-col v-if="$route.path !== '/memo/create'" id="welcome-pane" cols="auto" class="pa-0 ma-0 d-flex flex-column">
+      <MainLayout></MainLayout>
+    </v-col>
+    <v-col id="interact-pane" class="pa-0 ma-0 d-flex flex-column">
+      <router-view :key="route.fullPath" />
+    </v-col>
+  </v-row>
 </template>
 
 <script setup lang="ts">
@@ -20,7 +20,7 @@ const route = useRoute();
 const memoStore = useMemoStore();
 
 onMounted(async () => {
-  if(route.path.includes('/memo') && (!route.path.includes('create') || !route.path.includes('edit'))){
+  if (route.path.includes('/memo') && (!route.path.includes('create') || !route.path.includes('edit'))) {
     memoStore.memos = await getData('/memo');
   }
 })
