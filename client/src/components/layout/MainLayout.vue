@@ -2,7 +2,7 @@
     <div class="panel user-info">
         <v-row class="info-pane pa-0 ma-0" align="center" justify="space-between">
             <img width="50" src="@/assets/logo.png" class="ma-0"/>
-            <span class="hello-msg">안녕하세요, 회원님</span>
+            <span class="hello-msg">닉네임의 메모</span>
         </v-row>
         <v-btn class="service-btn mt-1 mb-2" elevation="1" @click="moveToQuiz">퀴즈 풀기</v-btn>
         <v-btn class="service-btn memo-create-btn my-2" elevation="1" @click="moveToMemoCreate">메모 생성</v-btn>
@@ -39,7 +39,7 @@ const moveToQuiz = (): void => {
 <style scoped>
 .hello-msg{
     color: white;
-    font-size: 15px;
+    font-size: 12px;
     font-weight: 600;
 }
 .info-pane{

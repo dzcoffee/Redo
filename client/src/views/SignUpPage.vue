@@ -23,7 +23,7 @@ import { useRouter } from 'vue-router';
 const router = useRouter();
 
 const handleRegister = (): void =>{
-    router.push('/memo');
+    router.push('/login');
 }
 </script>
 

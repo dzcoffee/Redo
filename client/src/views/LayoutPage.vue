@@ -33,7 +33,7 @@ onMounted(async () => {
 }
 #welcome-pane {
   height: 100%;
-  min-width: 260px;
+  min-width: 200px;
   background-color: #335447;
 }
 #interact-pane {
