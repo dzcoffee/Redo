@@ -3,6 +3,9 @@ from starlette.middleware.cors import CORSMiddleware
 
 from domain.memo import memo_router
 from domain.user import user_router
+from domain.problem import problem_router
+from domain.quiz import quiz_router
+
 app = FastAPI()
 
 origins = [

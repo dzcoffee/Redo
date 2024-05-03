@@ -27,6 +27,35 @@ class User(Base):
     accountID = Column(VARCHAR(20), unique=True)
     password = Column(VARCHAR(30))
 
+
+
   #  quiz_entities = relationship("Quiz_entity", back_populates="user_entity")
    # memo_entities = relationship("Memo_entity", back_populates="user_entity")
 #
+
+class Quiz(Base):
+    __tablename__ = "quiz"
+    
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    writer = Column(Integer, ForeignKey('user.id'))
+    type = Column(VARCHAR(30))
+    count = Column(Integer)
+    difficulty = Column(VARCHAR(20))
+
+
+class Problem(Base):
+    __tablename__ = "problem"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    quizid = Column(Integer, ForeignKey('quiz.id'))
+    question = Column(Text)
+    answer = Column(Text)
+    difficulty = Column(VARCHAR(20), ForeignKey('quiz.difficulty'))
+
+
+class MemoQuiz_group(Base):
+    __tablename__ = "memo_quiz_group"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    quizid = Column(Integer, ForeignKey('quiz.id'))
+    memoid = Column(Integer, ForeignKey('memo.id'))
