@@ -6,3 +6,18 @@ export type Memo = {
     createdAt: number,
     updatedAt: number,
 }
+
+export type Quiz = {
+    id: string,
+    userId: string,
+    type: string,
+    count: string,
+    difficulty: string
+}
+
+export type Problem = {
+    id: string,
+    quizId: string,
+    question: string,
+    answer: string
+}

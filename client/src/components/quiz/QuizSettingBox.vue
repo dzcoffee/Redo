@@ -5,12 +5,12 @@
             <v-menu transition="fade-transition">
                 <template v-slot:activator="{ props }">
                   <v-btn class="option-btn" v-bind="props" append-icon="mdi-chevron-down" variant="outlined">
-                    {{ quizState.count }}
+                    {{ count }}
                   </v-btn>
                 </template>
                 <v-list class="pa-0" density="compact">
                   <v-list-item class="py-0" link v-for="option in options.count.items" :key="option">
-                    <v-list-item-title @click="quizState.count = option">{{ option }}</v-list-item-title>
+                    <v-list-item-title @click="count = option">{{ option }}</v-list-item-title>
                   </v-list-item>
                 </v-list>
             </v-menu>
@@ -20,12 +20,12 @@
             <v-menu transition="fade-transition">
                 <template v-slot:activator="{ props }">
                   <v-btn class="option-btn" v-bind="props" append-icon="mdi-chevron-down" variant="outlined">
-                    {{ quizState.type }}
+                    {{ type }}
                   </v-btn>
                 </template>
                 <v-list class="pa-0" density="compact">
                   <v-list-item class="py-0" link v-for="option in options.type.items" :key="option">
-                    <v-list-item-title @click="quizState.type = option">{{ option }}</v-list-item-title>
+                    <v-list-item-title @click="type = option">{{ option }}</v-list-item-title>
                   </v-list-item>
                 </v-list>
             </v-menu>
@@ -35,12 +35,12 @@
             <v-menu transition="fade-transition">
                 <template v-slot:activator="{ props }">
                   <v-btn class="option-btn" v-bind="props" append-icon="mdi-chevron-down" variant="outlined">
-                    {{ quizState.difficulty }}
+                    {{ difficulty }}
                   </v-btn>
                 </template>     
                 <v-list class="pa-0" density="compact">
                   <v-list-item class="py-0" link v-for="option in options.difficulty.items" :key="option">
-                    <v-list-item-title @click="quizState.difficulty = option">{{ option }}</v-list-item-title>
+                    <v-list-item-title @click="difficulty = option">{{ option }}</v-list-item-title>
                   </v-list-item>
                 </v-list>
             </v-menu>
@@ -52,23 +52,28 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { onUnmounted } from 'vue';
+import { postData } from '@/api/apis';
+import { storeToRefs } from 'pinia';
+import { useQuizSettingStore } from '@/stores/quizStore';
 import { useRouter } from 'vue-router';
 
 const router = useRouter();
+const quizSettingStore = useQuizSettingStore();
+const {memoId, count, type, difficulty} = storeToRefs(quizSettingStore);
 
-const moveToQuiz = (): void => {
-    router.push('/quiz/game');
+const moveToQuiz = async (): Promise<void> => {
+    if(quizSettingStore.memoId === '') return;
+    await postData('/quiz', {memoId: memoId.value, count: count.value, type: type.value, difficulty: difficulty.value})
+    .then(() => {
+      router.push('/quiz/game');
+    })
+    .catch(() => {}); // TODO: 나중에 없애기
 }
 
-const quizState = ref({
-    count: 1,
-    type: '객관식',
-    difficulty: '쉬움'
-})
 const options = {
     count: {
-        items: [1,2,3,4,5]
+        items: ["1","2","3","4","5"]
     },
     type: {
         items: ['객관식', '단답식']
@@ -77,6 +82,10 @@ const options = {
         items: ['쉬움', '중간', '어려움']
     }
 }
+
+onUnmounted(() => {
+  quizSettingStore.$reset();
+})
 </script>
 
 <style scoped>
