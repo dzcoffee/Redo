@@ -1,6 +1,6 @@
 <template>
   <h1 class="title px-3">{{ markdownStore.title }}</h1>
-  <div class="pa-3 d-flex">
+  <div class="pa-3 d-flex" v-if="markdownStore.categories">
     <v-btn rounded color="#0C3324" class="mr-1 category text-md-caption" v-for="category, index in markdownStore.categories" :key="index" :ripple="false">{{ category }}</v-btn>
   </div>
   <div class="preview-box pa-3" v-html="content"></div>
