@@ -52,7 +52,7 @@
 </template>
 
 <script setup lang="ts">
-import { onUnmounted } from 'vue';
+import { onMounted } from 'vue';
 import { postData } from '@/api/apis';
 import { storeToRefs } from 'pinia';
 import { useQuizSettingStore } from '@/stores/quizStore';
@@ -83,7 +83,7 @@ const options = {
     }
 }
 
-onUnmounted(() => {
+onMounted(() => {
   quizSettingStore.$reset();
 })
 </script>

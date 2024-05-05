@@ -11,3 +11,7 @@ export const getDataById = (url:string, id: string): Promise<any> => {
 export const postData = (url: string, data: unknown): Promise<any> => {
     return dummyInstance.post(`${url}`, data);
 }
+
+export const signIn = (auth: {'id': string, 'password': string}): Promise<any> => {
+    return dummyInstance.post('/login', auth);
+}

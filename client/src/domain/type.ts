@@ -9,7 +9,7 @@ export type Memo = {
 
 export type Quiz = {
     id: string,
-    userId: string,
+    writer: string,
     type: string,
     count: string,
     difficulty: string
