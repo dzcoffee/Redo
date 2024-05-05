@@ -54,6 +54,7 @@
 <script setup lang="ts">
 import { onMounted } from 'vue';
 import { postData } from '@/api/apis';
+import { showToast } from '@/composables/toast';
 import { storeToRefs } from 'pinia';
 import { useQuizSettingStore } from '@/stores/quizStore';
 import { useRouter } from 'vue-router';
@@ -63,7 +64,10 @@ const quizSettingStore = useQuizSettingStore();
 const {memoId, count, type, difficulty} = storeToRefs(quizSettingStore);
 
 const moveToQuiz = async (): Promise<void> => {
-    if(quizSettingStore.memoId === '') return;
+    if(quizSettingStore.memoId === ''){
+      showToast('error', '메모를 선택해주세요.');
+      return;
+    }
     await postData('/quiz', {memoId: memoId.value, count: count.value, type: type.value, difficulty: difficulty.value})
     .then(() => {
       router.push('/quiz/game');

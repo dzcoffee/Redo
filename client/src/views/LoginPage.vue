@@ -23,6 +23,7 @@
 
 <script setup lang="ts">
 import { ref } from 'vue';
+import { showToast } from '@/composables/toast';
 import { signIn } from '@/api/apis';
 import { useRouter } from 'vue-router';
 
@@ -41,9 +42,10 @@ const handleLogin = async (): Promise<void> => {
   if(auth.value.id === '' || auth.value.password === '') return;
   await signIn(auth.value)
   .then(() =>{
+    showToast('success', "로그인 성공");
     router.push('/memo');
   })
-  .catch(() => console.log('로그인 실패'));
+  .catch(() => showToast('error', '로그인 실패'));
   
 }
 const handleSignUp = (): void => {
