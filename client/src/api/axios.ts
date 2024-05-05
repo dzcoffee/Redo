@@ -1,6 +1,7 @@
 import axios, { type AxiosInstance } from 'axios';
 
 const DUMMY_URL = 'http://localhost:3000';
+const SERVER_URL = 'http://localhost:8000';
 
 let postPending = false;
 
@@ -40,7 +41,7 @@ const baseResponseInterceptor = (instance: AxiosInstance): void => {
       if (res.config.method === 'post') {
         postPending = false;
       }
-      // console.log(res);
+      // console.log(res.data);
       return res.data;
     },
     async (err: any) => {
@@ -76,5 +77,4 @@ export const baseApi = (url: string, options?: object): AxiosInstance => {
   
 // export const baseInstance = baseApi(BASE_URL);
 export const dummyInstance = baseApi(DUMMY_URL);
-  
-  
+export const baseInstance = baseApi(SERVER_URL);
