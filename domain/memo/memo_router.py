@@ -3,6 +3,10 @@ from sqlalchemy.orm import Session
 from starlette import status
 from database import get_db
 from domain.memo import memo_schema, memo_crud
+# import logging
+
+# logger = logging.getLogger("uvicorn")
+# logger.setLevel(logging.INFO)
 
 router = APIRouter(
     prefix="/memo",
@@ -16,8 +20,9 @@ def memo_list(db: Session = Depends(get_db)):
     return _memo_list
 
 
-@router.get("/{id}", response_model=memo_schema.Memo, description="메모 조회 페이지")
+@router.get("/{memo_id}", response_model=memo_schema.Memo, description="메모 조회 페이지")
 async def memo_detail(memo_id: int, db: Session = Depends(get_db)):
+    # logger.info(memo_id)
     memo = await memo_crud.get_memo(db, memo_id=memo_id)
     return memo
 
