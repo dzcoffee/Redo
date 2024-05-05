@@ -39,7 +39,10 @@ const changePassword = (e: Event): void => {
 }
 
 const handleLogin = async (): Promise<void> => {
-  if(auth.value.id === '' || auth.value.password === '') return;
+  if(auth.value.id === '' || auth.value.password === ''){
+    showToast('error', '아이디와 비밀번호를 모두 입력해주세요.');
+    return;
+  }
   await signIn(auth.value)
   .then(() =>{
     showToast('success', "로그인 성공");
