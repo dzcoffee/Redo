@@ -21,12 +21,28 @@
 
 <script setup lang="ts">
 import { MemoBox, MemoCategoryBar, MemoPreview, MemoTitle } from '@/components/memo';
+import { postData } from '@/api/apis';
+import { showToast } from '@/composables/toast';
+import { storeToRefs } from 'pinia';
+import { useMarkdownStore } from '@/stores/markdownStore';
 import { useRouter } from 'vue-router';
 
+const {title, categories, content} = storeToRefs(useMarkdownStore());
 const router=  useRouter();
 
-const onRegister = (): void => {
-  router.push('/memo');
+const valid = (): boolean => {
+  return title.value !== '' && categories.value.length > 0 && content.value !== ''
+}
+
+const onRegister = async(): Promise<void> => {
+  if(!valid()){
+    showToast('error', '빈 칸을 채워주세요.(제목, 카테고리, 내용)')
+    return;
+  }
+  else {
+    await postData('/memo', {title: title.value, categories: categories.value, content: content.value});
+    router.push('/memo');
+  }
   }
 </script>
 

@@ -20,6 +20,8 @@
 </template>
 
 <script setup lang="ts">
+import { getData } from '@/api/apis';
+import { onMounted } from 'vue';
 import { storeToRefs } from 'pinia';
 import { useMemoStore } from '@/stores/memoStore';
 import { useRouter } from 'vue-router';
@@ -41,6 +43,10 @@ const moveToMemoCreate = (): void => {
 const moveToQuiz = (): void => {
   router.push('/quiz');
 }
+
+onMounted(async () => {
+  memos.value = await getData("/memo");
+})
 </script>
 
 <style scoped>
