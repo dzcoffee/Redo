@@ -8,13 +8,15 @@
     text-decoration: none;
 }
 .preview-box table,.preview-box thead,.preview-box tbody,.preview-box th,.preview-box td{
+    border-collapse: collapse;
     border: 1px solid #9a9a9a;
-    padding: 1px;
+    padding: 5px;
     margin: 0;
     background-color: #fefefe;
 }
 .preview-box blockquote{
     border-left: 2px solid #67A58D;
+    background-color: #eaeaea;
 }
 .preview-box img{
     object-fit: contain;

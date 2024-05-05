@@ -12,6 +12,6 @@ export const postData = (url: string, data: unknown): Promise<any> => {
     return baseInstance.post(`${url}`, data);
 }
 
-export const signIn = (auth: {'id': string, 'password': string}): Promise<any> => {
-    return baseInstance.post('/login', auth);
+export const signIn = (auth: {'username': string, 'password': string}): Promise<any> => {
+    return baseInstance.post('/user/login', auth);
 }

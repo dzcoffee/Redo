@@ -12,7 +12,7 @@
 
       </v-col>
       <v-col id="login-pane" class="pa-0 ma-0 d-flex flex-column align-center justify-center">
-        <input class="input mb-2 text-subtitle-1 text-md-h6 text-lg-h5" placeholder="아이디" :value="auth.id" @input="changeId">
+        <input class="input mb-2 text-subtitle-1 text-md-h6 text-lg-h5" placeholder="아이디" :value="auth.username" @input="changeId">
         <input type="password" class="input mt-2 mb-4 text-subtitle-1 text-md-h6 text-lg-h5" placeholder="비밀번호" :value="auth.password" @input="changePassword" @keyup.enter="handleLogin">
         <v-btn class="auth-btn ma-2 text-subtitle-1 text-md-h6 text-lg-h5" @click="handleLogin">로그인</v-btn>
         <v-btn class="auth-btn ma-2 text-subtitle-1 text-md-h6 text-lg-h5" @click="handleSignUp">회원 가입</v-btn>
@@ -28,10 +28,10 @@ import { signIn } from '@/api/apis';
 import { useRouter } from 'vue-router';
 
 const router = useRouter();
-const auth = ref({'id': '', 'password': ''})
+const auth = ref({'username': '', 'password': ''})
 
 const changeId = (e: Event): void => {
-  auth.value.id = (e.target as HTMLTextAreaElement).value;
+  auth.value.username = (e.target as HTMLTextAreaElement).value;
 }
 
 const changePassword = (e: Event): void => {
@@ -39,16 +39,19 @@ const changePassword = (e: Event): void => {
 }
 
 const handleLogin = async (): Promise<void> => {
-  if(auth.value.id === '' || auth.value.password === ''){
+  if(auth.value.username === '' || auth.value.password === ''){
     showToast('error', '아이디와 비밀번호를 모두 입력해주세요.');
     return;
   }
-  await signIn(auth.value)
-  .then(() =>{
-    showToast('success', "로그인 성공");
-    router.push('/memo');
-  })
-  .catch(() => showToast('error', '로그인 실패'));
+  console.log(auth.value);
+  showToast('success', "로그인 성공");
+  router.push('/memo');
+  // await signIn(auth.value)
+  // .then(() =>{
+  //   showToast('success', "로그인 성공");
+  //   router.push('/memo');
+  // })
+  // .catch(() => showToast('error', '아이디 또는 비밀번호가 틀렸습니다.'));
   
 }
 const handleSignUp = (): void => {
