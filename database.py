@@ -1,20 +1,30 @@
-from sqlalchemy import create_engine
+
+
+from sqlalchemy import create_engine, MetaData
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
-# 数据库连接 URL
-# 데이터베이스 연결 URL
-DATABASE_URL = "sqlite:///./user.db"
+SQLALCHEMY_DATABASE_URL = "sqlite:///./myapi.db"
 
-# 创建引擎
-# 엔진 생성
-engine = create_engine(DATABASE_URL)
-
-# 创建 SessionLocal 会话
-# Create SessionLocal 세션
+engine = create_engine(
+    SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False}
+)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
-# 基类
 Base = declarative_base()
+naming_convention = {
+    "ix": 'ix_%(column_0_label)s',
+    "uq": "uq_%(table_name)s_%(column_0_name)s",
+    "ck": "ck_%(table_name)s_%(column_0_name)s",
+    "fk": "fk_%(table_name)s_%(column_0_name)s_%(referred_table_name)s",
+    "pk": "pk_%(table_name)s"
+}
+Base.metadata = MetaData(naming_convention=naming_convention)
 
-# 이 코드는 데이터베이스에 연결하고 SQLAlchemy의 sessionmaker를 사용하여 데이터베이스 세션을 만듭니다.
+
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()

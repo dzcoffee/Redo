@@ -1,16 +1,71 @@
-from sqlalchemy import Column, Integer, String
-from database import Base, engine
+
+from sqlalchemy import Column, Integer, String, Text, DateTime, ForeignKey, VARCHAR, JSON
+from sqlalchemy.orm import relationship
+
+from database import Base
+
+
+class Memo(Base):
+    __tablename__ = "memo"
+
+    id = Column(Integer, primary_key=True)
+    writer = Column(Integer, ForeignKey('user.id'))
+    categories = Column(Text)  # VARCHAR로 축소하는 게 좋지 않은가?
+    title = Column(String, nullable=False)
+    content = Column(Text, nullable=False)
+    createAt = Column(DateTime, nullable=False)
+
+  #  user_entity = relationship("User_entity", back_populates="memo_entities")
+   # problem_groups = relationship("Problem_group", back_populates="memo_entity")
+
 
 class User(Base):
-    __tablename__ = 'users'
+    __tablename__ = "user"
 
-    id = Column(Integer, primary_key=True, index=True)
-    username = Column(String(100), unique=True, index=True)
-    hashed_password = Column(String(128))
-    email = Column(String(128), unique=True)
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    nickname = Column(VARCHAR(10), unique=True
+                      )
+    accountID = Column(VARCHAR(20), unique=True)
+    password = Column(VARCHAR(30))
 
-Base.metadata.create_all(bind=engine)
 
-# 이 코드는 SQLAlchemy를 사용하여 데이터베이스에서 사용자 모델을 정의합니다.
-# 사용자 모델에는 사용자의 ID, 사용자 이름, 해시된 비밀번호, 이메일이 포함됩니다.
-# 이 모델은 데이터베이스의 "users" 테이블에 매핑됩니다.
+
+  #  quiz_entities = relationship("Quiz_entity", back_populates="user_entity")
+   # memo_entities = relationship("Memo_entity", back_populates="user_entity")
+#
+
+class Quiz(Base):
+    __tablename__ = "quiz"
+    
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    writer = Column(Integer, ForeignKey('user.id'))
+    type = Column(VARCHAR(30))
+    count = Column(Integer)
+    difficulty = Column(VARCHAR(20))
+
+    # user = relationship("User", back_populates="quiz")
+    # problem = relationship("Problem", back_populates="quiz")
+    # problem_groups = relationship("Problem_group", back_populates="quiz")
+
+
+class Problem(Base):
+    __tablename__ = "problem"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    quizid = Column(Integer, ForeignKey('quiz.id'))
+    question = Column(Text)
+    answer = Column(Text)
+    difficulty = Column(VARCHAR(20), ForeignKey('quiz.difficulty'))
+    options = Column(JSON)
+
+    #quiz = relationship("Quiz", back_populates="problem")
+
+
+class MemoQuizGroup(Base):
+    __tablename__ = "memoQuizGroup"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    quiz_id = Column(Integer)
+    memo_id = Column(Integer)
+    #memo = relationship("Memo")
+    #quiz = relationship("Quiz")
