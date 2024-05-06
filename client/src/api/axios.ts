@@ -1,7 +1,7 @@
 import axios, { type AxiosInstance } from 'axios';
 
 const DUMMY_URL = 'http://localhost:3000';
-const SERVER_URL = 'http://localhost:8000';
+const SERVER_URL = 'https://port-0-redoback-1ru12mlvuze1ma.sel5.cloudtype.app';
 
 let postPending = false;
 
