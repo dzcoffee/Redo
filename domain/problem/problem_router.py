@@ -129,19 +129,21 @@ async def Check_User_Answer(problems: List[problem_schema.problem], quiz_id :int
 
     print(history)
 
-    query = f"Please verify {user_answer} is correct, as the Answer of Question : \n{history} ."
+    query = f"Please verify '{user_answer}' is correct, as the Answer of Question : \n{history} ."
 
     messages = [{"role": "system", "content" : "Check the before you maded question and verify user answers.\n If user answer is correct, please say in korean."},
                 {"role": "user", "content" : query},
                 {"role": "assistant", "content" : "Please verify the answer of input question is Correct or False.\n And then Teach me what real answer is and why it is. \n"
-                 +  "If user answer is '1, 4', The first question of user answer is '1' and the next question of user answer is '4'.  \n"
+                 +  "If there are Options and user answer is '1, 4', The first question of user answer is '1' and the next question of user answer is '4'.  \n"
+                 + " {gpt_answer} must follow user_answer form, if user answer is number(this is option number), you must answer as number. Else if user answer is string, you must answer as string .\n"
+                 + "{gpt_Ture_False} answer form must be 'True' or 'False'"
                  + "The output format should be as follows. \n"
                  + "Format:"
-                 + "{question} ==========!!"
-                 + "{user_answer} ==========!! {gpt_answer} ==========!!"
+                 + "{question1} ==========!!"
+                 + "{user_answer1} ==========!! {gpt_answer} ==========!! {gpt_Ture_False}==========!!"
                  + "{gpt_exaplanation_reason}@@==========@@"
-                 + "{question}==========!!"
-                 + "{user_answer}==========!!{gpt_answer}==========!!"
+                 + "{question2}==========!!"
+                 + "{user_answer2}==========!!{gpt_answer}==========!!"
                  + "{gpt_exaplanation_reason}@@==========@@"
                  }]
     
@@ -161,13 +163,15 @@ async def Check_User_Answer(problems: List[problem_schema.problem], quiz_id :int
             question = parts[0].strip()
             user_answer = parts[1].strip()
             gpt_answer = parts[2].strip()
-            reason = parts[3].strip()
+            gpt_TF = parts[3].strip()
+            reason = parts[4].strip()
 
             # 최종 딕셔너리에 추가
             final_dict[i] = {
                 "question": question,
                 "user_answer": user_answer,
                 "gpt_answer": gpt_answer,
+                "gpt_TF" : gpt_TF,
                 "reason": reason
             }
 
