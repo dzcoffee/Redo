@@ -106,18 +106,41 @@ async def Create_problems(quiz_id: int, db: Session = Depends(get_db)):
 @router.post("/{quiz_id}") #우선 모든 질문에 모두 답하는 것으로 함.
 async def Check_User_Answer(problems: List[problem_schema.problem], quiz_id :int, user_answer: str):
 
-    history = None
+    history = ""
 
-    history = "\n".Join([problem.content for problem in problems]) #문제들만 빼서 저장
+    count = 1
+    print(problems)
+    for problem in problems:
+        print(problem)
+        history += f"문제 {count}: {problem.question}\n"
+        print(history)
+        if problem.options:
+            print(problem.options)
+            options_str = "\n".join([f"선택지 {i+1}: {option}" for i, option in enumerate(problem.options)])
+            print(options_str)
+            history += f"{options_str}\n\n"
+        else:
+            history += "선택지 없음\n\n"
+        count = count +1
 
     model = MODEL
 
-    query = f"The Answer of Question '{history}' is '{user_answer}'."
+    print(history)
 
-    messages = [{"role": "system", "content" : f"Check the question '{history}' and verify user answers. If user answer is correct, please say in korean."},
+    query = f"The Answer of Question {history} is '{user_answer}'."
+
+    messages = [{"role": "system", "content" : "Check the before you maded question and verify user answers. If user answer is correct, please say in korean."},
                 {"role": "user", "content" : query},
                 {"role": "assistant", "content" : "Please verify the answer of input question is Correct or False. And then Teach me what real answer is and why it is."
-                 +  "If user answerse '1, 4' The first question of user answer is 1, and second question of user answer is 4. json"
+                 +  "If user answers '1, 4' The first question of user answer is 1, and second question of user answer is 4. json"
+                 + "The output format should be as follows"
+                 + "Format: \n"
+                 + "Question n. {question}"
+                 + "User Answer : {user_answer}, GPT Answer : {gpt_answer}"
+                 + " The reason is {gpt_exaplanation}"
+                 + "Question n+1. {question}"
+                 + "User Answer : {user_answer}, GPT Answer : {gpt_answer}"
+                 + " The reason is {gpt_exaplanation}"
                  }]
     
     response = client.chat.completions.create(model=model, messages=messages, response_format={"type":"json_object"})
