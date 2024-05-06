@@ -29,7 +29,7 @@ export const useQuizSettingStore = defineStore('quizSetting', () => {
 })
 
 export const useQuizStore = defineStore('quiz', () => {
-    const quizType = ('');
+    const quizType = ref('');
     const problems = ref<Problem[]>([
     ]);
 
@@ -37,4 +37,4 @@ export const useQuizStore = defineStore('quiz', () => {
         quizType,
         problems
     }
-}, {persist: {enabled: true, strategies: [{key: 'problem', storage: localStorage}]}})
+}, {persist: {storage: localStorage}})
