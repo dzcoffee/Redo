@@ -1,7 +1,9 @@
 from domain.problem.problem_schema import Problem_eCreate
 from models import Problem
 from sqlalchemy.orm import Session
+import json
 
+from typing import List
 
 def get_problem_list(db: Session):
     problem_list = db.query(Problem)\
@@ -15,8 +17,9 @@ async def get_problem(db: Session, problem_id: int):
     return problem
 
 
-def create_problem(db: Session, quiz_id : int, question : str, difficulty : str):
-    db_problem = Problem(quizid = quiz_id, question=question, answer = None, difficulty = difficulty)
+def create_problem(db: Session, quiz_id : int, question : str, difficulty : str, options : json):
+
+    db_problem = Problem(quizid = quiz_id, question=question, answer = None, options=options, difficulty = difficulty)
     db.add(db_problem)
     db.commit()
     db.refresh(db_problem)
