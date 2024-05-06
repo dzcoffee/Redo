@@ -7,14 +7,18 @@ from domain.quiz import quiz_crud
 
 
 def get_memoId(db: Session, quiz_id: int): #quiz_id로 memo_id 찾아주기
-    quiz = db.query(Quiz).filter(Quiz.id == quiz_id).first()
-    return quiz
+    Link = db.query(MemoQuizGroup).filter(MemoQuizGroup.quiz_id == quiz_id).first()
+    memo_id = Link.memo_id
+    memo = db.query(Memo).filter(Memo.id == memo_id).first()
+    return memo
 
 
 def get_quizId(db: Session, memo_id: int): #memo_id로 quiz_id 찾아주기
-    memo = db.query(Memo).get(memo_id)
+    Link = db.query(MemoQuizGroup).filter(MemoQuizGroup.memo_id == memo_id).first()
+    quiz_id = Link.quiz_id
+    quiz = db.query(Quiz).filter(Quiz.id == quiz_id).first()
 
-    return memo
+    return quiz
 
 
 def create_memo_quiz_group(db: Session, memo_id: int, quiz_id: int): #값 반환함. -> refresh해서 최신정보 줌
