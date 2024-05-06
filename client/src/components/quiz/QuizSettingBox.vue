@@ -75,9 +75,9 @@ const moveToQuiz = async (): Promise<void> => {
     showToast('info', '퀴즈 생성 중...');
     const res = await postData(`/quiz?quiz_count=${count.value}&difficulty=${difficulty.value}&memoID=${memoId.value}&type=${type.value}`);
     console.log(res);
+    quizStore.quizId = res.quiz_id;
     quizStore.quizType = type.value;
     quizStore.problems = await getData(`/quiz/game/${res.quiz_id}`);
-    console.log(quizStore.problems);
     isLoading.value = false;
     router.push('/quiz/game');
   }

@@ -7,30 +7,57 @@
     <v-spacer></v-spacer>
     <v-card class="container quiz-container">
     <div class="d-flex flex-column align-center">
-      <QuizCard :question="problem.question" v-for="problem, index in quizStore.problems" :key="index" :index="index"></QuizCard>
+      <QuizCard :question="problem.question" :options="problem.options" :problem-number="index"
+      v-for="problem, index in quizStore.problems" :key="index" :index="index"></QuizCard>
     </div>
     </v-card>
+    <v-col align="center">
+      <v-btn width="20%" id="grade-btn" @click="grading" :loading="isLoading">정답 보기</v-btn>
+    </v-col>
     <v-spacer></v-spacer>
   </v-col>
 </template>
 
 <script setup lang="ts">
+import { onMounted, ref } from 'vue';
+import { QuizState, useQuizStore } from '@/stores/quizStore';
+import { postData } from '@/api/apis';
 import QuizCard from '@/components/quiz/QuizCard.vue';
-import { useQuizStore } from '@/stores/quizStore';
+import { showToast } from '@/composables/toast';
 import { useRouter } from 'vue-router';
 
 const router = useRouter();
 const quizStore = useQuizStore();
+
+const isLoading = ref(false);
+
+const grading = async (): Promise<void> => {
+    isLoading.value = true;
+    const res =await postData(`/quiz/game/${quizStore.quizId}?user_answer=${encodeURIComponent(quizStore.answer.toString())}`, quizStore.problems);
+    showToast('info', '풀이를 확인하세요.');
+    quizStore.rawAnswer = res;
+    quizStore.state = QuizState.GRADE;
+    isLoading.value = false;
+}
+
+onMounted(() => {
+  quizStore.answer = new Array<string>(quizStore.problems.length).fill('');
+  quizStore.state = QuizState.TEST;
+})
 </script>
 
 <style scoped>
+#grade-btn{
+  background-color: #0C3324;
+  color: white;
+}
 .container {
   background-color: #FDF8EC;
 }
 .quiz-container{
   overflow: hidden;
   overflow-y: scroll;
-  height: 80vh;
+  height: 70vh;
 }
 .quiz-container::-webkit-scrollbar{
     width: 6px;
