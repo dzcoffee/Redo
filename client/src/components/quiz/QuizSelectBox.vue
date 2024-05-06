@@ -2,7 +2,7 @@
     <v-col class="ma-0 h-100 d-flex flex-column">
         <span class="text-sm-body-1 text-md-h6 text-lg-h5 font-weight-bold">퀴즈 생성을 위한 메모를 선택해주세요.</span>
         <v-spacer></v-spacer>
-        <v-card class="memo-list-container">
+        <v-card class="memo-list-container" elevation="5">
             <v-card-title class="text-sm-body-1 text-md-h6 text-lg-h5 font-weight-bold">메모 목록</v-card-title>
             <div class="memo-list d-flex flex-column align-center">
                 <MemoForQuiz :key="memo.id" :index="index" :memo="memo" :is-selected="selectedIndex === index" 

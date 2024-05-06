@@ -46,13 +46,13 @@
             </v-menu>
         </div>
         <div class="option d-flex align-center justify-end">
-            <v-btn id="create-quiz-btn" class="px-6" @click="moveToQuiz">퀴즈 생성</v-btn>
+            <v-btn :loading="isLoading" id="create-quiz-btn" class="px-6" @click="moveToQuiz">퀴즈 생성</v-btn>
         </div>
     </v-col>
 </template>
 
 <script setup lang="ts">
-import { onMounted } from 'vue';
+import { onMounted, ref } from 'vue';
 import { postData } from '@/api/apis';
 import { showToast } from '@/composables/toast';
 import { storeToRefs } from 'pinia';
@@ -62,18 +62,21 @@ import { useRouter } from 'vue-router';
 const router = useRouter();
 const quizSettingStore = useQuizSettingStore();
 const {memoId, count, type, difficulty} = storeToRefs(quizSettingStore);
+const isLoading = ref(false);
 
 const moveToQuiz = async (): Promise<void> => {
     if(quizSettingStore.memoId === ''){
       showToast('error', '메모를 선택해주세요.');
       return;
     }
-    console.log({memoId: memoId.value, count: count.value, type: type.value, difficulty: difficulty.value});
+    isLoading.value = true;
+    showToast('info', '퀴즈 생성 중...');
     await postData('/quiz', {memoId: memoId.value, count: count.value, type: type.value, difficulty: difficulty.value})
     .then(() => {
+      isLoading.value = false;
       router.push('/quiz/game');
     })
-    .catch(() => {}); // TODO: 나중에 없애기
+    .catch(() => {router.push('/quiz/game');}); // TODO: 나중에 없애기
 }
 
 const options = {
