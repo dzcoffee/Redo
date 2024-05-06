@@ -21,6 +21,8 @@ app.add_middleware(
 )
 app.include_router(memo_router.router)
 app.include_router(user_router.router)
+app.include_router(quiz_router.router)
+app.include_router(problem_router.router)
 
 
 #@app.get("/")
