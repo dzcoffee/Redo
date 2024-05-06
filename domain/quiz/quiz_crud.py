@@ -21,7 +21,9 @@ def get_quiz_id(db: Session, quiz_id: int): #퀴즈 DB모델 자체를 반환하
     return quiz
 
 
-def create_quiz(db : Session, quiz_option : QuizCreate):
-    db_quiz = Quiz(writer = quiz_option.writer, type = quiz_option.type, count = quiz_option.type, difficulty = quiz_option.difficulty )
+def create_quiz(db : Session, quiz_count:int, difficulty:str, type:str):
+    db_quiz = Quiz(type = type, count = quiz_count, difficulty = difficulty )
     db.add(db_quiz)
     db.commit()
+    db.refresh(db_quiz)
+    return db_quiz
