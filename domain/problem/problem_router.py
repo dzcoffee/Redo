@@ -134,14 +134,14 @@ async def Check_User_Answer(problems: List[problem_schema.problem], quiz_id :int
     messages = [{"role": "system", "content" : "Check the before you maded question and verify user answers.\n If user answer is correct, please say in korean."},
                 {"role": "user", "content" : query},
                 {"role": "assistant", "content" : "Please verify the answer of input question is Correct or False.\n And then Teach me what real answer is and why it is. \n"
-                 +  "If user answer is '1, 4', The first question of user answer is '1' and the next question of user answer is '4'.  \n"
+                 +  "If user answer is 'user_answer1, user_answer2', The first question of user answer is 'user_answer1' and the next question of user answer is 'user_answer2'.  \n"
                  + "The output format should be as follows. \n"
                  + "Format:"
                  + "{question} ==========!!"
-                 + "{user_answer} ==========!! {gpt_answer} ==========!!"
+                 + "{user_answer1} ==========!! {gpt_answer_option_number} ==========!!"
                  + "{gpt_exaplanation_reason}@@==========@@"
                  + "{question}==========!!"
-                 + "{user_answer}==========!!{gpt_answer}==========!!"
+                 + "{user_answer2}==========!!{gpt_answer_option_number}==========!!"
                  + "{gpt_exaplanation_reason}@@==========@@"
                  }]
     

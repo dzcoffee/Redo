@@ -64,7 +64,6 @@ const baseResponseInterceptor = (instance: AxiosInstance): void => {
 export const baseApi = (url: string, options?: object): AxiosInstance => {
   const instance = axios.create({
     baseURL: url,
-    timeout: 20000,
     headers: {
       'Content-Type': 'application/json',
     },

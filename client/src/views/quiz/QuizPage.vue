@@ -7,7 +7,8 @@
     <v-spacer></v-spacer>
     <v-card class="container quiz-container">
     <div class="d-flex flex-column align-center">
-      <QuizCard :question="problem.question" :options="problem.options" v-for="problem, index in quizStore.problems" :key="index" :index="index"></QuizCard>
+      <QuizCard :question="problem.question" :options="problem.options" :problem-number="index"
+      v-for="problem, index in quizStore.problems" :key="index" :index="index"></QuizCard>
     </div>
     </v-card>
     <v-col align="center">
@@ -18,9 +19,11 @@
 </template>
 
 <script setup lang="ts">
+import { onMounted, ref } from 'vue';
 import { QuizState, useQuizStore } from '@/stores/quizStore';
+import { postData } from '@/api/apis';
 import QuizCard from '@/components/quiz/QuizCard.vue';
-import { ref } from 'vue';
+import { showToast } from '@/composables/toast';
 import { useRouter } from 'vue-router';
 
 const router = useRouter();
@@ -28,12 +31,19 @@ const quizStore = useQuizStore();
 
 const isLoading = ref(false);
 
-const grading = (): void => {
+const grading = async (): Promise<void> => {
     isLoading.value = true;
-    // TODO: 정답 요청
+    const res =await postData(`/quiz/game/${quizStore.quizId}?user_answer=${encodeURIComponent(quizStore.answer.toString())}`, quizStore.problems);
+    showToast('info', '풀이를 확인하세요.');
+    quizStore.rawAnswer = res;
     quizStore.state = QuizState.GRADE;
     isLoading.value = false;
 }
+
+onMounted(() => {
+  quizStore.answer = new Array<string>(quizStore.problems.length).fill('');
+  quizStore.state = QuizState.TEST;
+})
 </script>
 
 <style scoped>

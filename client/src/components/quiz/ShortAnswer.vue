@@ -4,10 +4,16 @@
 
 <script setup lang="ts">
 import { ref } from 'vue';
+import { useQuizStore } from '@/stores/quizStore';
 
+const { problemNumber } = defineProps({
+  problemNumber: {type: Number, reuiqred: false, default: 0},
+})
+const quizStore = useQuizStore();
 const inputValue = ref('');
 const changeInput = (e: Event): void => {
   inputValue.value = (e.target as HTMLTextAreaElement).value;
+  quizStore.answer[problemNumber] = inputValue.value;
 };
 </script>
 

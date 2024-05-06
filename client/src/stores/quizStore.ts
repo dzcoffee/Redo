@@ -34,15 +34,21 @@ export enum QuizState{
 }
 
 export const useQuizStore = defineStore('quiz', () => {
+    const quizId = ref('');
     const quizType = ref('');
     const problems = ref<Problem[]>([
     ]);
     const state = ref<QuizState>(QuizState.TEST);
+    const answer = ref<string[]>([]);
+    const rawAnswer = ref();
 
 
     return {
+        quizId,
         quizType,
         problems,
-        state
+        state,
+        answer,
+        rawAnswer
     }
 }, {persist: {storage: localStorage}})
