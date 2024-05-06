@@ -10,27 +10,44 @@
       <QuizCard :question="problem.question" :options="problem.options" v-for="problem, index in quizStore.problems" :key="index" :index="index"></QuizCard>
     </div>
     </v-card>
+    <v-col align="center">
+      <v-btn width="20%" id="grade-btn" @click="grading" :loading="isLoading">정답 보기</v-btn>
+    </v-col>
     <v-spacer></v-spacer>
   </v-col>
 </template>
 
 <script setup lang="ts">
+import { QuizState, useQuizStore } from '@/stores/quizStore';
 import QuizCard from '@/components/quiz/QuizCard.vue';
-import { useQuizStore } from '@/stores/quizStore';
+import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 
 const router = useRouter();
 const quizStore = useQuizStore();
+
+const isLoading = ref(false);
+
+const grading = (): void => {
+    isLoading.value = true;
+    // TODO: 정답 요청
+    quizStore.state = QuizState.GRADE;
+    isLoading.value = false;
+}
 </script>
 
 <style scoped>
+#grade-btn{
+  background-color: #0C3324;
+  color: white;
+}
 .container {
   background-color: #FDF8EC;
 }
 .quiz-container{
   overflow: hidden;
   overflow-y: scroll;
-  height: 80vh;
+  height: 70vh;
 }
 .quiz-container::-webkit-scrollbar{
     width: 6px;

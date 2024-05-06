@@ -1,9 +1,14 @@
 <template>
-  <textarea class="short-answer pa-1" label="답을 적으세요." outlined></textarea>
+  <textarea class="short-answer pa-1" label="답을 적으세요." :value="inputValue" @input="changeInput" outlined></textarea>
 </template>
 
 <script setup lang="ts">
+import { ref } from 'vue';
 
+const inputValue = ref('');
+const changeInput = (e: Event): void => {
+  inputValue.value = (e.target as HTMLTextAreaElement).value;
+};
 </script>
 
 <style scoped>

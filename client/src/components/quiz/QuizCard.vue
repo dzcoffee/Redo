@@ -1,11 +1,12 @@
 <template>
-  <v-card min-width="60%" max-width="80%" class="my-4">
+  <v-card width="80%" class="my-4">
     <div style="min-width: 0;">
       <v-card-title class="font-weight-bold">{{ question }}</v-card-title>
+      <v-card-subtitle v-if="quizStore.state === QuizState.GRADE">결과 확인</v-card-subtitle>
     </div>
     <v-card-item>
       <v-col v-if="quizStore.quizType === '객관식'">
-        <MultipleChoice v-bind:problemNubmer="index" :content="option" v-for="(option, index) in options"
+        <MultipleChoice :content="option" v-for="(option, index) in options"
           :key="index" :index="index"></MultipleChoice>
       </v-col>
       <v-col v-else align="center">
@@ -14,16 +15,14 @@
     </v-card-item>
     <v-card-actions>
       <v-spacer></v-spacer>
-      <v-btn class="submit-btn" @click="grading">정답 보기</v-btn>
     </v-card-actions>
   </v-card>
 </template>
 
 <script setup lang="ts">
+import { QuizState, useQuizStore } from '@/stores/quizStore';
 import MultipleChoice from '@/components/quiz/MultipleChoice.vue';
-import { ref } from 'vue';
 import ShortAnswer from '@/components/quiz/ShortAnswer.vue';
-import { useQuizStore } from '@/stores/quizStore';
 
 const {question, options} = defineProps({
   index: { type: Number, required: true, default: 0 },
@@ -32,14 +31,6 @@ const {question, options} = defineProps({
 })
 
 const quizStore = useQuizStore();
-
-const isLoading = ref(false);
-
-const grading = (): void => {
-    isLoading.value = true;
-    // TODO: 정답 요청
-    isLoading.value = false;
-}
 </script>
 
 <style scoped>
