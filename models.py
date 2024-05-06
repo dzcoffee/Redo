@@ -62,8 +62,8 @@ class Problem(Base):
 class MemoQuizGroup(Base):
     __tablename__ = "memoQuizGroup"
 
-    id = Column(Integer, primary_key=True)
-    quiz_id = Column(Integer, ForeignKey('quiz.id'))
-    memo_id = Column(Integer, ForeignKey('memo.id'))
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    quiz_id = Column(Integer)
+    memo_id = Column(Integer)
     #memo = relationship("Memo")
     #quiz = relationship("Quiz")
