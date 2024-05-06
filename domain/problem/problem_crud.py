@@ -16,7 +16,7 @@ async def get_problem(db: Session, problem_id: int):
 
 
 def create_problem(db: Session, quiz_id : int, question : str, difficulty : str):
-    db_problem = Problem(quiz_id = quiz_id, question=question, answer = None, difficulty = difficulty)
+    db_problem = Problem(quizid = quiz_id, question=question, answer = None, difficulty = difficulty)
     db.add(db_problem)
     db.commit()
     db.refresh(db_problem)
