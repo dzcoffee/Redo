@@ -17,7 +17,7 @@ export type Quiz = {
 
 export type Problem = {
     id: string,
-    quizId: string,
+    quizid: string,
     question: string,
     answer: string
 }

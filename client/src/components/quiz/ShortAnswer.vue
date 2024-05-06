@@ -6,4 +6,13 @@
 
 </script>
 
-<style scoped></style>
+<style scoped>
+.short-answer {
+  border: 1px solid #EAEAEA;
+  border-radius: 10px;
+  resize: none;
+  outline: none;
+  width: 95%;
+  min-height: 10vh;
+}
+</style>
