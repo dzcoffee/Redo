@@ -1,5 +1,5 @@
 from pydantic import BaseModel, field_validator
-from typing import Optional
+from typing import Optional, List
 
 #problem_entity 테이블
 class problem(BaseModel):
@@ -8,6 +8,7 @@ class problem(BaseModel):
     question : str
     difficulty : str
     answer : Optional[str]
+    options : Optional[List[str]]
     
 
 class Problem_eCreate(problem):
