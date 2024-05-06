@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Text, DateTime, ForeignKey, VARCHAR
+from sqlalchemy import Column, Integer, String, Text, DateTime, ForeignKey, VARCHAR, JSON
 from sqlalchemy.orm import relationship
 
 from database import Base
@@ -55,6 +55,7 @@ class Problem(Base):
     question = Column(Text)
     answer = Column(Text)
     difficulty = Column(VARCHAR(20), ForeignKey('quiz.difficulty'))
+    options = Column(JSON)
 
     #quiz = relationship("Quiz", back_populates="problem")
 

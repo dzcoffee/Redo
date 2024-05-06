@@ -37,11 +37,8 @@ async def Create_problems(quiz_id: int, db: Session = Depends(get_db)):
     db_quiz = quiz_crud.get_quiz_id(db, quiz_id)
 
     ##quiz_id로 묶인 memo 정보 db에 요청
-    db_qmLink = memoQuizGroup_crud.get_memoId(db, quiz_id)
-    memo_id = db_qmLink.id
+    db_memo= memoQuizGroup_crud.get_memoId(db, quiz_id) ## 이거 내부 코드 수정을 해야됨.
 
-    ##memo_id를 이용해 db에서 memo 정보 요청
-    db_memo = memo_crud.get_memo(db, memo_id)
     if db_memo is None:
     # 적절한 예외 처리나 오류 메시지 반환
         raise HTTPException(status_code=404, detail="Memo not found")
