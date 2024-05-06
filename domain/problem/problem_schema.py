@@ -4,11 +4,13 @@ from pydantic import BaseModel, field_validator
 class problem(BaseModel):
     id : int
     quizid : int
+    question : str
+    difficulty : str
+    answer : str
     
 
 class Problem_eCreate(problem):
-    question : str
-    difficulty : str
+    
 
     @field_validator('question', 'difficulty')
     def not_empty(cls, v):
@@ -17,6 +19,6 @@ class Problem_eCreate(problem):
         return v
 
 class Problem_entity(problem):
-    answer : str
+    
     class Config:
         orm_mode = True

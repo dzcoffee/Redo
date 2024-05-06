@@ -42,6 +42,10 @@ class Quiz(Base):
     count = Column(Integer)
     difficulty = Column(VARCHAR(20))
 
+    # user = relationship("User", back_populates="quiz")
+    # problem = relationship("Problem", back_populates="quiz")
+    # problem_groups = relationship("Problem_group", back_populates="quiz")
+
 
 class Problem(Base):
     __tablename__ = "problem"
@@ -52,10 +56,14 @@ class Problem(Base):
     answer = Column(Text)
     difficulty = Column(VARCHAR(20), ForeignKey('quiz.difficulty'))
 
+    #quiz = relationship("Quiz", back_populates="problem")
 
-class MemoQuiz_group(Base):
-    __tablename__ = "memo_quiz_group"
 
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    quizid = Column(Integer, ForeignKey('quiz.id'))
-    memoid = Column(Integer, ForeignKey('memo.id'))
+class MemoQuizGroup(Base):
+    __tablename__ = "memoQuizGroup"
+
+    id = Column(Integer, primary_key=True)
+    quiz_id = Column(Integer, ForeignKey('quiz.id'))
+    memo_id = Column(Integer, ForeignKey('memo.id'))
+    #memo = relationship("Memo")
+    #quiz = relationship("Quiz")
