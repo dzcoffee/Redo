@@ -6,12 +6,12 @@ from domain.memo import memo_crud
 from domain.quiz import quiz_crud
 
 
-async def get_memoId(db: Session, quiz_id: int): #quiz_id로 memo_id 찾아주기
-    quiz = db.query(Quiz).get(quiz_id)
+def get_memoId(db: Session, quiz_id: int): #quiz_id로 memo_id 찾아주기
+    quiz = db.query(Quiz).filter(Quiz.id == quiz_id).first()
     return quiz
 
 
-async def get_quizId(db: Session, memo_id: int): #memo_id로 quiz_id 찾아주기
+def get_quizId(db: Session, memo_id: int): #memo_id로 quiz_id 찾아주기
     memo = db.query(Memo).get(memo_id)
 
     return memo

@@ -12,8 +12,8 @@ def get_memo_list(db: Session):
     return memo_list
 
 
-async def get_memo(db: Session, memo_id: int):
-    memo = db.query(Memo).get(memo_id)
+def get_memo(db: Session, memo_id: int):
+    memo = db.query(Memo).filter(Memo.id == memo_id).first()
     return memo
 
 
