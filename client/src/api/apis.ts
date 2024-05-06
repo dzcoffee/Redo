@@ -9,7 +9,7 @@ export const getDataById = (url:string, id: string): Promise<any> => {
     return baseInstance.get(`${url}/${id}`);
 }
 
-export const postData = (url: string, data: unknown): Promise<any> => {
+export const postData = (url: string, data?: unknown): Promise<any> => {
     return baseInstance.post(`${url}`, data);
 }
 

@@ -5,7 +5,7 @@
     </div>
     <v-card-item>
       <v-col v-if="quizStore.quizType === '객관식'">
-        <MultipleChoice v-bind:problemNubmer="index" :content="choice" v-for="(choice, index) in multipleChoices"
+        <MultipleChoice v-bind:problemNubmer="index" :content="option" v-for="(option, index) in options"
           :key="index" :index="index"></MultipleChoice>
       </v-col>
       <v-col v-else align="center">
@@ -25,18 +25,15 @@ import { ref } from 'vue';
 import ShortAnswer from '@/components/quiz/ShortAnswer.vue';
 import { useQuizStore } from '@/stores/quizStore';
 
-const {question} = defineProps({
+const {question, options} = defineProps({
   index: { type: Number, required: true, default: 0 },
-  question: {type: String, default: '', required: false}
+  question: {type: String, default: '', required: false},
+  options: {type: Array<String>, default: [], required: false}
 })
 
 const quizStore = useQuizStore();
 
 const isLoading = ref(false);
-const multipleChoices = ref([
-  'git commit을 이용해 브랜치를 병합할 수 있다.',
-  'git push를 이용해 원격 레포지토리에 변경 내역을 적용할 수 있다.',
-]);
 
 const grading = (): void => {
     isLoading.value = true;

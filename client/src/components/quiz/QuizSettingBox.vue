@@ -77,7 +77,6 @@ const moveToQuiz = async (): Promise<void> => {
     console.log(res);
     quizStore.quizType = type.value;
     quizStore.problems = await getData(`/quiz/game/${res.quiz_id}`);
-    console.log(quizStore.problems);
     isLoading.value = false;
     router.push('/quiz/game');
   }

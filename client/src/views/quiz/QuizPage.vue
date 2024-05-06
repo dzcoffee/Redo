@@ -7,7 +7,7 @@
     <v-spacer></v-spacer>
     <v-card class="container quiz-container">
     <div class="d-flex flex-column align-center">
-      <QuizCard :question="problem.question" v-for="problem, index in quizStore.problems" :key="index" :index="index"></QuizCard>
+      <QuizCard :question="problem.question" :options="problem.options" v-for="problem, index in quizStore.problems" :key="index" :index="index"></QuizCard>
     </div>
     </v-card>
     <v-spacer></v-spacer>

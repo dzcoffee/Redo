@@ -31,12 +31,6 @@ export const useQuizSettingStore = defineStore('quizSetting', () => {
 export const useQuizStore = defineStore('quiz', () => {
     const quizType = ('');
     const problems = ref<Problem[]>([
-        {
-            id: "1",
-            quizid: "3",
-            question: "질문",
-            answer: '답'
-        }
     ]);
 
     return {
