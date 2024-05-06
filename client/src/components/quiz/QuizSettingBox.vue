@@ -68,6 +68,7 @@ const moveToQuiz = async (): Promise<void> => {
       showToast('error', '메모를 선택해주세요.');
       return;
     }
+    console.log({memoId: memoId.value, count: count.value, type: type.value, difficulty: difficulty.value});
     await postData('/quiz', {memoId: memoId.value, count: count.value, type: type.value, difficulty: difficulty.value})
     .then(() => {
       router.push('/quiz/game');

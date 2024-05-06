@@ -22,3 +22,14 @@
     object-fit: contain;
     max-width: 50%;
 }
+
+.previe-box > ol{
+    display: list-item;
+    background-color: red;
+}
+
+.preview-box ol li::marker{
+    list-style-type: decimal;
+    font-size: 12px;
+    color: red;
+}

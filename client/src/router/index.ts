@@ -22,7 +22,7 @@ const router = createRouter({
       name: 'home',
       component: LayoutPage,
       children: subRoutes,
-      redirect: '/memo'
+      redirect: '/login'
     },
     {
       path: '/login',

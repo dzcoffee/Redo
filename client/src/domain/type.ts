@@ -21,3 +21,9 @@ export type Problem = {
     question: string,
     answer: string
 }
+
+export type User = {
+    nickname: string,
+    accountID: string,
+    password: string,
+}
