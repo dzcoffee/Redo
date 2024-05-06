@@ -8,7 +8,7 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 def create_user(db: Session, user_create: UserCreate):
     db_user = User(nickname=user_create.nickname,
-                   password=pwd_context.hash(user_create.password1),
+                   password=pwd_context.hash(user_create.password),
                    accountID=user_create.accountID)
     db.add(db_user)
     db.commit()

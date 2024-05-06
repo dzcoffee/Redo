@@ -40,7 +40,7 @@ const onRegister = async(): Promise<void> => {
     return;
   }
   else {
-    await postData('/memo', {title: title.value, categories: categories.value, content: content.value});
+    await postData('/memo/create', {title: title.value, categories: categories.value, content: content.value});
     router.push('/memo');
   }
   }

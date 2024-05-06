@@ -8,15 +8,28 @@
     text-decoration: none;
 }
 .preview-box table,.preview-box thead,.preview-box tbody,.preview-box th,.preview-box td{
+    border-collapse: collapse;
     border: 1px solid #9a9a9a;
-    padding: 1px;
+    padding: 5px;
     margin: 0;
     background-color: #fefefe;
 }
 .preview-box blockquote{
     border-left: 2px solid #67A58D;
+    background-color: #eaeaea;
 }
 .preview-box img{
     object-fit: contain;
     max-width: 50%;
+}
+
+.previe-box > ol{
+    display: list-item;
+    background-color: red;
+}
+
+.preview-box ol li::marker{
+    list-style-type: decimal;
+    font-size: 12px;
+    color: red;
 }

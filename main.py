@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from starlette.middleware.cors import CORSMiddleware
+from fastapi.middleware.cors import CORSMiddleware
 
 from domain.memo import memo_router
 from domain.user import user_router
@@ -9,7 +9,7 @@ from domain.quiz import quiz_router
 app = FastAPI()
 
 origins = [
-    "http://127.0.0.1:5173",
+    "http://localhost:5173",
 ]
 
 app.add_middleware(
