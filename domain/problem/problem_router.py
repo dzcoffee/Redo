@@ -6,6 +6,7 @@ from database import get_db
 from sqlalchemy.orm import Session
 from typing import List, Optional
 
+import json
 
 from domain.memo import memo_schema, memo_crud
 from domain.quiz import quiz_schema, quiz_crud
@@ -54,24 +55,20 @@ async def Create_problems(quiz_id: int, db: Session = Depends(get_db)):
                 {"role": "user","content": query},
                 {"role": "system", "content" : "The output format should be as follows'. The number of quesiton follow in the user input. You must not say 'any other things' before 'Question'. Also you must input Separtor '==========!!' between each Qusetion. If type is '단답식', please answer without options.'\n"
                  +"Format:\n"
-                 +"{Question}"
-                 #+"==========!!"
-                 + "1){Option1} "
-                 + "2){Option2} "
-                 + "3){Option3} "
-                 + "4){Option4} "
+                 +"{Question}?"
+                 +"==========!!\n"
+                 + "@!@!@!@{Option1} "
+                 + "@!@!@!@{Option2} "
+                 + "@!@!@!@{Option3} "
+                 + "@!@!@!@{Option4} "
                  +"==========!!"
-                 + "{Question}"
-                 #+"==========!!"
-                 + "1){Option1} "
-                 + "2){Option2} "
-                 + "3){Option3} "
-                 + "4){Option4} "
-                 + "The Example of format is as follows.\n"
-                 + " Something you made question?"
-                 + " 1) Answer_1 2) Answer_2 3) Answer_3 4) Answer_4==========!!"
-                 + " 2. Something you made question"
-                 + " 1) Answer_1 2) Answer_2 3) Answer_3 4) Answer_4==========!!"
+                 + "{Question}?"
+                 +"==========!!\n"
+                 + "@!@!@!@{Option1} "
+                 + "@!@!@!@{Option2} "
+                 + "@!@!@!@{Option3} "
+                 + "@!@!@!@{Option4} "
+                 + "==========!!\n"
                  }
                 ]
 
@@ -84,14 +81,26 @@ async def Create_problems(quiz_id: int, db: Session = Depends(get_db)):
 
     print(divided_problems)
 
-    problem_list = [] #'문제 + 옵션' / '문제 + 옵션' /.... 이런식으로 저장됨.
+    problem_list = [] #'문제', '옵션' / '문제', '옵션' /.... 이런식으로 저장됨. 단 옵션은 없으면 None으로 처리
 
     problem_counter = 0
-    while problem_counter < db_quiz.count: #문제 갯수에 맞게 배열에 저장
-        question = divided_problems[problem_counter]
-        db_problem = problem_crud.create_problem(db, quiz_id = quiz_id, question=question, difficulty=db_quiz.difficulty)
+    while problem_counter < len(divided_problems) - 1:  # 마지막 분할은 비어있을 수 있으므로 제외
+        question = divided_problems[problem_counter].strip() + '?'
+        problem_counter += 1  # 옵션으로 이동
+        
+        # 옵션 처리: 공백으로 구분된 옵션들을 배열로 변환
+        options_str = divided_problems[problem_counter].strip()
+        if options_str:
+            options = [option.strip() for option in options_str.split("@!@!@!@") if option.strip()]
+        else:
+            options = None
+        problem_counter += 1  # 다음 문제로 이동
+
+        print(options)
+
+        # 문제 객체 생성 및 리스트에 추가
+        db_problem = problem_crud.create_problem(db, quiz_id=quiz_id, question=question, options=options or [], difficulty=db_quiz.difficulty)
         problem_list.append(db_problem)
-        problem_counter = problem_counter+1  #문제, 옵션 이런식이니 2단계 넘어야 함.
 
     return problem_list #Problem을 List형식으로 반환
 
