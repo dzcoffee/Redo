@@ -33,7 +33,8 @@ const isLoading = ref(false);
 
 const grading = async (): Promise<void> => {
     isLoading.value = true;
-    const res =await postData(`/quiz/game/${quizStore.quizId}?user_answer=${encodeURIComponent(quizStore.answer.toString())}`, quizStore.problems);
+    const res =await postData(`/quiz/game/${quizStore.quizId}?user_answer=${encodeURIComponent(quizStore.answer.toString())}`, quizStore.problems)
+    .catch(() => showToast('error', '풀이 요청에 실패했습니다.'));
     showToast('info', '풀이를 확인하세요.');
     quizStore.rawAnswer = res;
     quizStore.state = QuizState.GRADE;

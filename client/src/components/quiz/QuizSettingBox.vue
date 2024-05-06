@@ -74,7 +74,6 @@ const moveToQuiz = async (): Promise<void> => {
     isLoading.value = true;
     showToast('info', '퀴즈 생성 중...');
     const res = await postData(`/quiz?quiz_count=${count.value}&difficulty=${difficulty.value}&memoID=${memoId.value}&type=${type.value}`);
-    console.log(res);
     quizStore.quizId = res.quiz_id;
     quizStore.quizType = type.value;
     quizStore.problems = await getData(`/quiz/game/${res.quiz_id}`);
@@ -82,6 +81,7 @@ const moveToQuiz = async (): Promise<void> => {
     router.push('/quiz/game');
   }
   catch(e){
+    showToast('error', '퀴즈 생성에 실패했습니다.');
     isLoading.value = false;
   }
 }
