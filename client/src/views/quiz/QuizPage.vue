@@ -7,9 +7,7 @@
     <v-spacer></v-spacer>
     <v-card class="container quiz-container">
     <div class="d-flex flex-column align-center">
-      <QuizCard></QuizCard>
-      <QuizCard></QuizCard>
-      <QuizCard></QuizCard>
+      <QuizCard :question="problem.question" v-for="problem, index in quizStore.problems" :key="index" :index="index"></QuizCard>
     </div>
     </v-card>
     <v-spacer></v-spacer>
@@ -18,9 +16,11 @@
 
 <script setup lang="ts">
 import QuizCard from '@/components/quiz/QuizCard.vue';
+import { useQuizStore } from '@/stores/quizStore';
 import { useRouter } from 'vue-router';
 
 const router = useRouter();
+const quizStore = useQuizStore();
 </script>
 
 <style scoped>

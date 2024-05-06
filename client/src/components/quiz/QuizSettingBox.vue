@@ -52,31 +52,38 @@
 </template>
 
 <script setup lang="ts">
+import { getData, postData } from '@/api/apis';
 import { onMounted, ref } from 'vue';
-import { postData } from '@/api/apis';
+import { useQuizSettingStore, useQuizStore } from '@/stores/quizStore';
 import { showToast } from '@/composables/toast';
 import { storeToRefs } from 'pinia';
-import { useQuizSettingStore } from '@/stores/quizStore';
 import { useRouter } from 'vue-router';
 
 const router = useRouter();
 const quizSettingStore = useQuizSettingStore();
+const quizStore = useQuizStore();
 const {memoId, count, type, difficulty} = storeToRefs(quizSettingStore);
 const isLoading = ref(false);
 
 const moveToQuiz = async (): Promise<void> => {
-    if(quizSettingStore.memoId === ''){
+  if(quizSettingStore.memoId === ''){
       showToast('error', '메모를 선택해주세요.');
       return;
     }
+  try{
     isLoading.value = true;
     showToast('info', '퀴즈 생성 중...');
-    await postData('/quiz', {memoId: memoId.value, count: count.value, type: type.value, difficulty: difficulty.value})
-    .then(() => {
-      isLoading.value = false;
-      router.push('/quiz/game');
-    })
-    .catch(() => {router.push('/quiz/game');}); // TODO: 나중에 없애기
+    const res = await postData(`/quiz?quiz_count=${count.value}&difficulty=${difficulty.value}&memoID=${memoId.value}&type=${type.value}`);
+    console.log(res);
+    quizStore.quizType = type.value;
+    quizStore.problems = await getData(`/quiz/game/${res.quiz_id}`);
+    console.log(quizStore.problems);
+    isLoading.value = false;
+    router.push('/quiz/game');
+  }
+  catch(e){
+    isLoading.value = false;
+  }
 }
 
 const options = {
