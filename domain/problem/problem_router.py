@@ -13,9 +13,10 @@ from domain.quiz import quiz_schema, quiz_crud
 from domain.quiz_memo_group import memoQuizGroup_schema, memoQuizGroup_crud
 from domain.problem import problem_schema, problem_crud
 
+from pydantic import BaseModel
 
 
-OPENAI_API_KEY = "sk-proj-ICgDke4pZhfQGVjRbLXVT3BlbkFJCXouIJ1ARFKa6EPFZ0M9"
+OPENAI_API_KEY = "sk-proj-p5uN3gZ9BbVgJGkJIE4OT3BlbkFJJ5y6pvXgzRFYYrcTopyk"
 
 client = OpenAI(
     api_key = OPENAI_API_KEY
@@ -112,40 +113,71 @@ async def Check_User_Answer(problems: List[problem_schema.problem], quiz_id :int
     print(problems)
     for problem in problems:
         print(problem)
-        history += f"문제 {count}: {problem.question}\n"
+        history += f"{problem.question}\n"
         print(history)
         if problem.options:
             print(problem.options)
-            options_str = "\n".join([f"선택지 {i+1}: {option}" for i, option in enumerate(problem.options)])
+            options_str = "\n".join([f"{i+1}: {option}" for i, option in enumerate(problem.options)])
             print(options_str)
             history += f"{options_str}\n\n"
         else:
             history += "선택지 없음\n\n"
         count = count +1
 
+    print("we are out\n")
     model = MODEL
 
     print(history)
 
-    query = f"The Answer of Question {history} is '{user_answer}'."
+    query = f"Please verify '{user_answer}' is correct, as the Answer of Question : \n{history} ."
 
-    messages = [{"role": "system", "content" : "Check the before you maded question and verify user answers. If user answer is correct, please say in korean."},
+    messages = [{"role": "system", "content" : "Check the before you maded question and verify user answers.\n If user answer is correct, please say in korean."},
                 {"role": "user", "content" : query},
-                {"role": "assistant", "content" : "Please verify the answer of input question is Correct or False. And then Teach me what real answer is and why it is."
-                 +  "If user answers '1, 4' The first question of user answer is 1, and second question of user answer is 4. json"
-                 + "The output format should be as follows"
-                 + "Format: \n"
-                 + "Question n. {question}"
-                 + "User Answer : {user_answer}, GPT Answer : {gpt_answer}"
-                 + " The reason is {gpt_exaplanation}"
-                 + "Question n+1. {question}"
-                 + "User Answer : {user_answer}, GPT Answer : {gpt_answer}"
-                 + " The reason is {gpt_exaplanation}"
+                {"role": "assistant", "content" : "Please verify the answer of input question is Correct or False.\n And then Teach me what real answer is and why it is. \n"
+                 +  "If there are Options and user answer is '1, 4', The first question of user answer is '1' and the next question of user answer is '4'.  \n"
+                 + " {gpt_answer} must follow user_answer form, if user answer is number(this is option number), you must answer as number. Else if user answer is string, you must answer as string .\n"
+                 + "{gpt_Ture_False} answer form must be 'True' or 'False'"
+                 + "The output format should be as follows. \n"
+                 + "Format:"
+                 + "{question1} ==========!!"
+                 + "{user_answer1} ==========!! {gpt_answer} ==========!! {gpt_Ture_False}==========!!"
+                 + "{gpt_exaplanation_reason}@@==========@@"
+                 + "{question2}==========!!"
+                 + "{user_answer2}==========!!{gpt_answer}==========!!"
+                 + "{gpt_exaplanation_reason}@@==========@@"
                  }]
     
-    response = client.chat.completions.create(model=model, messages=messages, response_format={"type":"json_object"})
+    response = client.chat.completions.create(model=model, messages=messages)
     answer = response.choices[0].message.content
 
-    print(answer)
+    sets = answer.strip().split("@@==========@@")
+    final_dict = {}
 
-    return answer
+    print ("before loop")
+
+    # 각 세트를 순회하며 처리
+    for i, set in enumerate(sets, start=1):
+        if set:  # 세트가 비어있지 않은 경우에만 처리
+            parts = set.strip().split("==========!!")
+            # 세부 항목 분리 및 딕셔너리 구성
+            question = parts[0].strip()
+            user_answer = parts[1].strip()
+            gpt_answer = parts[2].strip()
+            gpt_TF = parts[3].strip()
+            reason = parts[4].strip()
+
+            # 최종 딕셔너리에 추가
+            final_dict[i] = {
+                "question": question,
+                "user_answer": user_answer,
+                "gpt_answer": gpt_answer,
+                "gpt_TF" : gpt_TF,
+                "reason": reason
+            }
+
+    # 결과 출력
+    print(final_dict)
+
+    print("ended\n")
+
+    return final_dict
