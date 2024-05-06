@@ -17,9 +17,10 @@ router = APIRouter(
 )
 
 #퀴즈 옵션 선택한 거 받아와서 DB에 새로 생성하는 api
-@router.post("", response_model=quiz_schema.quiz_eBase)
+@router.post("", response_model=memoQuizGroup_schema.MemoQuizGroup)
 async def Create_Quiz_by_Option(quiz_count:int, difficulty:str, memoID : int, type : str, db: Session = Depends(get_db)):
-    db_quiz = quiz_crud.create_quiz(db=db, type = type, count = quiz_count, difficulty = difficulty ) #퀴즈 옵션 db에 저장
+    db_quiz = quiz_crud.create_quiz(db=db, type = type, quiz_count = quiz_count, difficulty = difficulty ) #퀴즈 옵션 db에 저장
+    print(db_quiz.id)
     return memoQuizGroup_crud.create_memo_quiz_group(db=db, memo_id = memoID, quiz_id=db_quiz.id) #퀴즈와 메모 연결한 그룹 DB 저장
 
 
