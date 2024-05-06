@@ -28,19 +28,27 @@ export const useQuizSettingStore = defineStore('quizSetting', () => {
     }
 })
 
+export enum QuizState{
+    TEST,
+    GRADE
+}
+
 export const useQuizStore = defineStore('quiz', () => {
-    const quizType = ('');
+    const quizId = ref('');
+    const quizType = ref('');
     const problems = ref<Problem[]>([
-        {
-            id: "1",
-            quizid: "3",
-            question: "질문",
-            answer: '답'
-        }
     ]);
+    const state = ref<QuizState>(QuizState.TEST);
+    const answer = ref<string[]>([]);
+    const rawAnswer = ref();
+
 
     return {
+        quizId,
         quizType,
-        problems
+        problems,
+        state,
+        answer,
+        rawAnswer
     }
-}, {persist: {enabled: true, strategies: [{key: 'problem', storage: localStorage}]}})
+}, {persist: {storage: localStorage}})

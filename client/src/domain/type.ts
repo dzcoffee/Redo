@@ -20,6 +20,7 @@ export type Problem = {
     quizid: string,
     question: string,
     answer: string
+    options: string[]
 }
 
 export type User = {
