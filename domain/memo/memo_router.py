@@ -22,7 +22,6 @@ def memo_list(db: Session = Depends(get_db)):
 
 @router.get("/{memo_id}", response_model=memo_schema.Memo, description="메모 조회 페이지")
 async def memo_detail(memo_id: int, db: Session = Depends(get_db)):
-    # logger.info(memo_id)
     memo = await memo_crud.get_memo(db, memo_id=memo_id)
     return memo
 
