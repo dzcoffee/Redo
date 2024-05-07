@@ -2,7 +2,7 @@
     <v-container class="signup-page d-flex flex-column align-center justify-center h-100">
         <v-card class="py-5 px-8">
             <v-col class="d-flex flex-column align-center mb-5">
-                <v-img :width="80" :height="80" src="src/assets/logo.png"></v-img>
+                <v-img :width="80" :height="80" src="@/assets/logo.png"></v-img>
                 <span class="info text-subtitle-1 text-md-h6 text-lg-h5">회원가입</span>
             </v-col>
             <InfoInput title="닉네임" placeholder="10자 이내" validText="10자 이내로 입력하세요." @update-input="onChangeNickname"></InfoInput>

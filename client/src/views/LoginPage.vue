@@ -2,7 +2,7 @@
   <v-container id="welcome-page" class="pa-0 ma-0">
     <v-row class="h-100 pa-0 ma-0">
       <v-col id="welcome-pane" class="pa-0 ma-0 d-flex flex-column align-center justify-center">
-        <v-img :width="300" :max-height="300" src="src/assets/logo.png" class="ma-0"></v-img>
+        <v-img :width="300" :max-height="300" src="@/assets/logo.png" class="ma-0"></v-img>
         <span class="intro text-h6 text-md-h5 text-lg-h4">Redo가 제공하는 퀴즈로</span>
         <span>
           <span class="intro d-inline text-h6 text-md-h5 text-lg-h4">새로운 </span>
