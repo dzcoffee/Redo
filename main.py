@@ -11,7 +11,7 @@ from database import Base, engine
 app = FastAPI()
 
 origins = [
-    "http://redo:80", "https://port-0-redoback-1ru12mlvuze1ma.sel5.cloudtype.app/"
+    "https://redo:80", "https://port-0-redoback-1ru12mlvuze1ma.sel5.cloudtype.app/"
 ]
 
 app.add_middleware(

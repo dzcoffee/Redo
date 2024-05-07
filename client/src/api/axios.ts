@@ -1,7 +1,7 @@
 import axios, { type AxiosInstance } from 'axios';
 
 const DUMMY_URL = 'http://localhost:3000';
-const SERVER_URL = 'http://redoback:8000';
+const SERVER_URL = 'https://redoback:8000';
 
 let postPending = false;
 
