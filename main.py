@@ -11,7 +11,7 @@ from database import Base, engine
 app = FastAPI()
 
 origins = [
-    "http://localhost:5173",
+    "http://redo:80",
 ]
 
 app.add_middleware(
