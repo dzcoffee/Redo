@@ -7,7 +7,6 @@ class User(Base):
     id = Column(Integer, primary_key=True, index=True)
     username = Column(String(100), unique=True, index=True)
     hashed_password = Column(String(128))
-    email = Column(String(128), unique=True)
 
-Base.metadata.create_all(bind=engine)
+
 
