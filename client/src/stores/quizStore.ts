@@ -43,13 +43,23 @@ export const useQuizStore = defineStore(
     const answer = ref<string[]>([])
     const rawAnswer = ref()
 
+    const $reset = (): void => {
+      quizId.value = ''
+      quizType.value = ''
+      problems.value = []
+      state.value = QuizState.TEST
+      answer.value = []
+      rawAnswer.value = {}
+    }
+
     return {
       quizId,
       quizType,
       problems,
       state,
       answer,
-      rawAnswer
+      rawAnswer,
+      $reset
     }
   },
   { persist: { storage: localStorage } }
