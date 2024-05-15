@@ -19,7 +19,9 @@
         <ShortAnswer :problem-number="problemNumber"></ShortAnswer>
       </v-col>
       <v-col v-if="quizStore.state === QuizState.GRADE">
-        <p class="answer">{{ quizStore.rawAnswer[problemNumber + 1]['reason'] }}</p>
+        <p class="answer">* 해설</p>
+        <p class="answer mb-2">{{ quizStore.rawAnswer[problemNumber + 1]['reason'] }}</p>
+        <QuizReview :data="quizStore.rawAnswer"></QuizReview>
       </v-col>
     </v-card-item>
     <v-card-actions>
@@ -32,6 +34,7 @@
 import { QuizState, useQuizStore } from '@/stores/quizStore'
 import MultipleChoice from '@/components/quiz/MultipleChoice.vue'
 import { type PropType } from 'vue'
+import QuizReview from '@/components/quiz/QuizReview.vue'
 import ShortAnswer from '@/components/quiz/ShortAnswer.vue'
 
 const { problemNumber, index, question, options } = defineProps({
