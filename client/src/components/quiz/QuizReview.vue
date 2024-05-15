@@ -25,7 +25,6 @@ const onClick = (index: number): void => {
   })
 }
 const scoreColor = (state: boolean): string => (state ? 'yellow' : 'grey')
-console.log(data)
 </script>
 
 <style scoped>
