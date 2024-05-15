@@ -11,7 +11,7 @@
       >{{ category }}</v-btn
     >
   </div>
-  <div class="preview-box pa-3" v-html="content"></div>
+  <div class="preview-box pa-3 pl-7" v-html="content"></div>
 </template>
 
 <script setup lang="ts">
