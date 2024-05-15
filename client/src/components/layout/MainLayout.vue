@@ -11,8 +11,15 @@
     </v-col>
   </div>
   <div class="panel memo-list">
-    <v-btn v-for="memo, index in memos" :key="index" class="memo-btn my-1 text-none" elevation="0" :ripple="false"
-      @click="() => moveToMemo(memo.id)">{{ memo.title }}</v-btn>
+    <v-btn
+      v-for="(memo, index) in memos"
+      :key="index"
+      class="memo-btn my-1 text-none"
+      elevation="0"
+      :ripple="false"
+      @click="() => moveToMemo(memo.id)"
+      >{{ memo.title }}</v-btn
+    >
   </div>
   <div class="panel logout-pane">
     <v-btn class="service-btn my-2" elevation="1" @click="handleLogout">로그아웃</v-btn>
@@ -20,32 +27,32 @@
 </template>
 
 <script setup lang="ts">
-import { getData } from '@/api/apis';
-import { onMounted } from 'vue';
-import { storeToRefs } from 'pinia';
-import { useMemoStore } from '@/stores/memoStore';
-import { useRouter } from 'vue-router';
+import { getData } from '@/api/apis'
+import { onMounted } from 'vue'
+import { storeToRefs } from 'pinia'
+import { useMemoStore } from '@/stores/memoStore'
+import { useRouter } from 'vue-router'
 
-const { memos } = storeToRefs(useMemoStore());
-const router = useRouter();
+const { memos } = storeToRefs(useMemoStore())
+const router = useRouter()
 const handleLogout = (): void => {
-  router.push('/login');
+  router.push('/login')
 }
 const moveToMemo = (number: string): void => {
-  router.push(`/memo/${number}`);
+  router.push(`/memo/${number}`)
 }
 const moveToMemoList = (): void => {
-  router.push('/memo');
+  router.push('/memo')
 }
 const moveToMemoCreate = (): void => {
-  router.push(`/memo/create`);
+  router.push(`/memo/create`)
 }
 const moveToQuiz = (): void => {
-  router.push('/quiz');
+  router.push('/quiz')
 }
 
 onMounted(async () => {
-  memos.value = await getData("/memo");
+  memos.value = await getData('/memo')
 })
 </script>
 
@@ -61,7 +68,7 @@ onMounted(async () => {
   justify-content: space-around;
 }
 .logout-pane {
-  background-color: #0C3324;
+  background-color: #0c3324;
   width: 100%;
   height: 70px;
   justify-content: center;
@@ -77,7 +84,7 @@ onMounted(async () => {
   text-overflow: ellipsis;
 }
 .memo-btn:hover {
-  background-color: #67A58D;
+  background-color: #67a58d;
 }
 .panel {
   padding: 5px;
@@ -88,7 +95,7 @@ onMounted(async () => {
 .service-btn {
   font-size: 18px;
   font-weight: 600;
-  background-color: #FDF8EC;
+  background-color: #fdf8ec;
 }
 .memo-create-btn {
   background-color: #335447;
@@ -97,7 +104,7 @@ onMounted(async () => {
 .user-info {
   width: 100%;
   height: 160px;
-  background-color: #0C3324;
+  background-color: #0c3324;
   border-bottom-left-radius: 5px;
   border-bottom-right-radius: 5px;
 }

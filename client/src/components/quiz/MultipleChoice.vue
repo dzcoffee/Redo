@@ -6,22 +6,21 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
-import { useQuizStore } from '@/stores/quizStore';
-
+import { computed } from 'vue'
+import { useQuizStore } from '@/stores/quizStore'
 
 const { problemNumber, index, content } = defineProps({
-  problemNumber: {type: Number, reuiqred: false, default: 0},
+  problemNumber: { type: Number, reuiqred: false, default: 0 },
   index: { type: Number, required: true, default: 0 },
   content: { type: String, required: true, default: '선택지 내용' }
 })
 
-const emits = defineEmits(['select-answer']);
-const quizStore = useQuizStore();
-const isSelected = computed(() => quizStore.answer[problemNumber] === String(index + 1));
+// const emits = defineEmits(['select-answer']);
+const quizStore = useQuizStore()
+const isSelected = computed(() => quizStore.answer[problemNumber] === String(index + 1))
 
 const onClick = (): void => {
-  quizStore.answer[problemNumber] = String(index + 1);
+  quizStore.answer[problemNumber] = String(index + 1)
 }
 </script>
 

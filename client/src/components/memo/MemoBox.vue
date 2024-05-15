@@ -3,24 +3,24 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted } from 'vue';
-import { storeToRefs } from 'pinia';
-import { useMarkdownStore } from '@/stores/markdownStore';
+import { onMounted } from 'vue'
+import { storeToRefs } from 'pinia'
+import { useMarkdownStore } from '@/stores/markdownStore'
 
-const { content } = storeToRefs(useMarkdownStore());
+const { content } = storeToRefs(useMarkdownStore())
 
 const placeholder = `메모 내용을 적어주세요...
 
 예시)
 
 # 메모 제목
-## 메모 내용`;
+## 메모 내용`
 
 const changeContent = (e: Event): void => {
-  content.value = (e.target as HTMLTextAreaElement).value;
+  content.value = (e.target as HTMLTextAreaElement).value
 }
 
-onMounted(() => useMarkdownStore().$reset());
+onMounted(() => useMarkdownStore().$reset())
 </script>
 
 <style scoped>
@@ -41,10 +41,10 @@ onMounted(() => useMarkdownStore().$reset());
   border-radius: 6px;
 }
 .content::-webkit-scrollbar-thumb {
-    background-color: #67A58D;
-    border-radius: 6px;
+  background-color: #67a58d;
+  border-radius: 6px;
 }
 .content::-webkit-scrollbar-button {
-    display: none;
+  display: none;
 }
 </style>

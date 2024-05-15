@@ -3,14 +3,14 @@
 </template>
 
 <script setup lang="ts">
-import { storeToRefs } from "pinia";
-import { useMarkdownStore } from "@/stores/markdownStore";
+import { storeToRefs } from 'pinia'
+import { useMarkdownStore } from '@/stores/markdownStore'
 
-const { title } = storeToRefs(useMarkdownStore());
+const { title } = storeToRefs(useMarkdownStore())
 
 const changeTitle = (e: Event): void => {
-  title.value = (e.target as HTMLTextAreaElement).value;
-};
+  title.value = (e.target as HTMLTextAreaElement).value
+}
 </script>
 
 <style scoped>
@@ -26,10 +26,10 @@ const changeTitle = (e: Event): void => {
   white-space: nowrap;
   text-overflow: ellipsis;
 }
-.title::placeholder{
+.title::placeholder {
   color: #67a58d;
 }
-.title::-webkit-scrollbar{
+.title::-webkit-scrollbar {
   display: none;
 }
 </style>

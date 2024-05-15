@@ -22,7 +22,7 @@ client = OpenAI(
     api_key = OPENAI_API_KEY
 )
 
-MODEL = "gpt-4-turbo" #json형식 return 받으려면 1106버전 이상 
+MODEL = "gpt-4o" #json형식 return 받으려면 1106버전 이상 
 
 DB_Problem_List = []
 

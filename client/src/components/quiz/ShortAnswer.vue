@@ -3,23 +3,23 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
-import { useQuizStore } from '@/stores/quizStore';
+import { ref } from 'vue'
+import { useQuizStore } from '@/stores/quizStore'
 
 const { problemNumber } = defineProps({
-  problemNumber: {type: Number, reuiqred: false, default: 0},
+  problemNumber: { type: Number, reuiqred: false, default: 0 }
 })
-const quizStore = useQuizStore();
-const inputValue = ref('');
+const quizStore = useQuizStore()
+const inputValue = ref('')
 const changeInput = (e: Event): void => {
-  inputValue.value = (e.target as HTMLTextAreaElement).value;
-  quizStore.answer[problemNumber] = inputValue.value;
-};
+  inputValue.value = (e.target as HTMLTextAreaElement).value
+  quizStore.answer[problemNumber] = inputValue.value
+}
 </script>
 
 <style scoped>
 .short-answer {
-  border: 1px solid #EAEAEA;
+  border: 1px solid #eaeaea;
   border-radius: 10px;
   resize: none;
   outline: none;

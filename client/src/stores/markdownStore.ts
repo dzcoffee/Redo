@@ -4,12 +4,12 @@ import { ref } from 'vue'
 export const useMarkdownStore = defineStore('markdown', () => {
   const title = ref('')
   const content = ref('')
-  const categories = ref<string[]>([]);
+  const categories = ref<string[]>([])
 
   const $reset = (): void => {
-    title.value = '';
-    content.value = '';
-    categories.value = [];
+    title.value = ''
+    content.value = ''
+    categories.value = []
   }
   return {
     title,

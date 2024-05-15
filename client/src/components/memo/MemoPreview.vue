@@ -4,29 +4,29 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted } from "vue";
-import { marked } from "marked";
-import { storeToRefs } from "pinia";
-import { useMarkdownStore } from "@/stores/markdownStore";
+import { computed, onMounted } from 'vue'
+import { marked } from 'marked'
+import { storeToRefs } from 'pinia'
+import { useMarkdownStore } from '@/stores/markdownStore'
 
-const { title, content } = storeToRefs(useMarkdownStore());
+const { title, content } = storeToRefs(useMarkdownStore())
 
 const preview = computed(() => {
-  let changedText = marked(content.value) as string;
-  changedText = changedText.replaceAll("&lt;", "<");
-  changedText = changedText.replaceAll("&gt;", ">");
-  changedText = changedText.replaceAll("&quot;", '"');
-  return changedText;
-});
+  let changedText = marked(content.value) as string
+  changedText = changedText.replaceAll('&lt;', '<')
+  changedText = changedText.replaceAll('&gt;', '>')
+  changedText = changedText.replaceAll('&quot;', '"')
+  return changedText
+})
 
 onMounted(() => {
   marked.setOptions({
     renderer: new marked.Renderer(),
     gfm: true,
     breaks: true,
-    pedantic: false,
-  });
-});
+    pedantic: false
+  })
+})
 </script>
 
 <style scoped>
@@ -39,13 +39,13 @@ onMounted(() => {
   font-size: 18px;
 }
 .preview-box::-webkit-scrollbar {
-    width: 6px;
-    background-color: #f0f0f0;
-    border-radius: 6px;
+  width: 6px;
+  background-color: #f0f0f0;
+  border-radius: 6px;
 }
 
 .preview-box::-webkit-scrollbar-thumb {
-    background-color: #67A58D;
-    border-radius: 6px;
+  background-color: #67a58d;
+  border-radius: 6px;
 }
 </style>
