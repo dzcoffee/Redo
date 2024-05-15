@@ -72,6 +72,7 @@ const moveToQuiz = async (): Promise<void> => {
   }
   try {
     isLoading.value = true
+    quizStore.$reset()
     showToast('info', '퀴즈 생성 중...')
     const res = await postData(`/quiz?quiz_count=${count.value}&difficulty=${difficulty.value}&memoID=${memoId.value}&type=${type.value}`)
     quizStore.quizId = res.quiz_id
