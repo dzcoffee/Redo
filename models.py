@@ -57,6 +57,7 @@ class Problem(Base):
     answer = Column(Text)
     difficulty = Column(VARCHAR(20), ForeignKey('quiz.difficulty'))
     options = Column(JSON)
+    feedBack = Column(Integer)
 
     #quiz = relationship("Quiz", back_populates="problem")
 
