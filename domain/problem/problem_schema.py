@@ -9,6 +9,7 @@ class problem(BaseModel):
     difficulty : str
     answer : Optional[str]
     options : Optional[List[str]]
+    feedback : Optional[int]
     
 
 class Problem_eCreate(problem):

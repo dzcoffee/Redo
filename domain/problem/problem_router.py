@@ -22,7 +22,7 @@ client = OpenAI(
     api_key = OPENAI_API_KEY
 )
 
-MODEL = "gpt-4-turbo" #json형식 return 받으려면 1106버전 이상 
+MODEL = "gpt-4-turbo" #json형식 return 받으려면 1106버전 이상
 
 DB_Problem_List = []
 
@@ -33,7 +33,7 @@ router = APIRouter(
 #선택한 옵션으로 gpt api를 통해 생성된 문제를 쏴주는 api
 @router.get("/{quiz_id}", response_model=List[problem_schema.problem]) # << Problem entity Pydantic모델의 리스트로 리턴받음. ##, response_model=List[Problem]## 추가할 것
 async def Create_problems(quiz_id: int, db: Session = Depends(get_db)):
-    
+
     ##quiz_id로 quiz 정보 db에 요청
     db_quiz = quiz_crud.get_quiz_id(db, quiz_id)
 
@@ -44,12 +44,12 @@ async def Create_problems(quiz_id: int, db: Session = Depends(get_db)):
     # 적절한 예외 처리나 오류 메시지 반환
         raise HTTPException(status_code=404, detail="Memo not found")
 
-    model = MODEL 
+    model = MODEL
 
     query = f"{db_memo.content}라는 내용을 바탕으로 {db_quiz.type}형태로, {db_quiz.count}개의 문제를 만들어줄래?" #json 형태 반환 시 json이 query에 포함되어 있어야함
     #difficulty는 일단 제외 테스트 후 추가
 
-    messages = [{"role": "system","content": "You are a helpful quiz maker system and also verify user answers and speak Korean "}, 
+    messages = [{"role": "system","content": "You are a helpful quiz maker system and also verify user answers and speak Korean "},
                 {"role": "user","content": query},
                 {"role": "system", "content" : "The output format should be as follows'. The number of quesiton follow in the user input. You must not say 'any other things' before 'Question'. Also you must input Separtor '==========!!' between each Qusetion. If type is '단답식', please answer without options.'\n"
                  +"Format:\n"
@@ -85,7 +85,7 @@ async def Create_problems(quiz_id: int, db: Session = Depends(get_db)):
     while problem_counter < len(divided_problems) - 1:  # 마지막 분할은 비어있을 수 있으므로 제외
         question = divided_problems[problem_counter].strip() + '?'
         problem_counter += 1  # 옵션으로 이동
-        
+
         # 옵션 처리: 공백으로 구분된 옵션들을 배열로 변환
         options_str = divided_problems[problem_counter].strip()
         if options_str:
@@ -146,7 +146,7 @@ async def Check_User_Answer(problems: List[problem_schema.problem], quiz_id :int
                  + "{user_answer2}==========!!{gpt_answer}==========!!"
                  + "{gpt_exaplanation_reason}@@==========@@"
                  }]
-    
+
     response = client.chat.completions.create(model=model, messages=messages)
     answer = response.choices[0].message.content
 
@@ -181,3 +181,25 @@ async def Check_User_Answer(problems: List[problem_schema.problem], quiz_id :int
     print("ended\n")
 
     return final_dict
+
+
+
+@router.post("/{quiz_id}/feedBack", response_model=Optional[problem_schema.Problem])
+async def FeedBack(quiz_id: int, problem_id: int, feedback: int, db: Session = Depends(get_db)):
+    if feedback < 1 or feedback > 10:
+        raise HTTPException(status_code=400, detail="Feedback must be between 1 and 10")
+
+    #문제 가져오기
+    db_problem = problem_crud.get_problem(db, problem_id)
+    if not db_problem:
+        raise HTTPException(status_code=404, detail="Problem not found")
+
+    if feedback <= 4:
+        if problem_crud.delete_problem_if_low_feedback(db, problem_id, feedback):
+            return feedback
+
+    # 문제에 피드백 저장
+    db_problem.feedback = feedback
+    db.commit()
+    db.refresh(db_problem)
+    return db_problem
