@@ -10,6 +10,7 @@ class problem(BaseModel):
     answer : Optional[str]
     options : Optional[List[str]]
     comentary : Optional[str]
+
     
 
 class Problem_eCreate(problem):

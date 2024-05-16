@@ -22,7 +22,9 @@ client = OpenAI(
     api_key = OPENAI_API_KEY
 )
 
+
 MODEL = "gpt-4o" #json형식 return 받으려면 1106버전 이상 
+
 
 DB_Problem_List = []
 
@@ -33,7 +35,7 @@ router = APIRouter(
 #선택한 옵션으로 gpt api를 통해 생성된 문제를 쏴주는 api
 @router.get("/{quiz_id}", response_model=List[problem_schema.problem]) # << Problem entity Pydantic모델의 리스트로 리턴받음. ##, response_model=List[Problem]## 추가할 것
 async def Create_problems(quiz_id: int, db: Session = Depends(get_db)):
-    
+
     ##quiz_id로 quiz 정보 db에 요청
     db_quiz = quiz_crud.get_quiz_id(db, quiz_id)
 
@@ -44,12 +46,13 @@ async def Create_problems(quiz_id: int, db: Session = Depends(get_db)):
     # 적절한 예외 처리나 오류 메시지 반환
         raise HTTPException(status_code=404, detail="Memo not found")
 
-    model = MODEL 
+    model = MODEL
 
     query = f" '''{db_memo.content}'''라는 내용을 바탕으로 '{db_quiz.type}'형태로, {db_quiz.count}개의 문제를 만들어줄래?" #이것도 토큰 수 절약할 꺼면 영어로 번역하면 됨.
     #difficulty는 일단 제외 테스트 후 추가
 
     messages = [{"role": "system","content": "You are a helpful quiz maker system and also speak Korean "}, 
+
                 {"role": "user","content": query},
                 {"role": "system", "content" : "The output format should be as follows, but If type is not '객관식', Please answer without option like '@!@!@!@{Option1}', '@!@!@!@{Option2}'.\n The number of quesiton follow the user input, but do not put 'the number' before question, just answer Question string.\n You must not say 'any other things' before 'Question'.\n Also you must input Separtor.\n Answer must be correct Answer.\n Commentary must be explaining how can you find the answer.\n Don't put 'Colon' Before any { } instance. '\n"
                  +"Format:\n"
@@ -93,8 +96,10 @@ async def Create_problems(quiz_id: int, db: Session = Depends(get_db)):
     while problem_counter < len(divided_problems) - 1:  # 마지막 분할은 비어있을 수 있으므로 제외
         question = divided_problems[problem_counter].strip() + '?'
         problem_counter += 1  # 옵션으로 이동
+
         
         if db_quiz.type == "객관식":
+
             options = None
         else:
             # 옵션 처리: 공백으로 구분된 옵션들을 배열로 변환
@@ -131,6 +136,7 @@ async def Check_User_Answer(problems: List[problem_schema.problem], quiz_id :int
     history = ""
     type = 0 # 0 : 단답, 주관식 , 1: 객관식
 
+
     final_dict = {} #반환하는 dict 형 변수
 
     if problems[0].options: #첫 문제로 단답, 객관식 판별(option있으면 객관식)
@@ -155,6 +161,7 @@ async def Check_User_Answer(problems: List[problem_schema.problem], quiz_id :int
                 "gpt_answer": problem.answer,
                 "gpt_TF" : User_TF,
                 "reason": problem.comentary
+
             }
             problem_count = problem_count +1
 
@@ -248,3 +255,25 @@ async def Check_User_Answer(problems: List[problem_schema.problem], quiz_id :int
         print("ended\n")
 
     return final_dict
+
+
+
+@router.post("/{quiz_id}/feedBack", response_model=Optional[problem_schema.Problem])
+async def FeedBack(quiz_id: int, problem_id: int, feedback: int, db: Session = Depends(get_db)):
+    if feedback < 1 or feedback > 10:
+        raise HTTPException(status_code=400, detail="Feedback must be between 1 and 10")
+
+    #문제 가져오기
+    db_problem = problem_crud.get_problem(db, problem_id)
+    if not db_problem:
+        raise HTTPException(status_code=404, detail="Problem not found")
+
+    if feedback <= 4:
+        if problem_crud.delete_problem_if_low_feedback(db, problem_id, feedback):
+            return feedback
+
+    # 문제에 피드백 저장
+    db_problem.feedback = feedback
+    db.commit()
+    db.refresh(db_problem)
+    return db_problem
