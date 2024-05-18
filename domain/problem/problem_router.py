@@ -147,11 +147,11 @@ async def Check_User_Answer(problems: List[problem_schema.problem], quiz_id :int
         print("객관식임\n")
         for problem in problems:
             check_answer = user_answer[problem_count] #N번째 문제의 유저 답변 
-            int(check_answer) # str형 -> int형
+            check_answer = int(check_answer) - 1  # str형 -> int형, 1번부터 ~ -> 0번부터 ~
             User_TF = "False"
             print(check_answer)
-            print(problem.options[check_answer])
             print(problem.answer)
+            print(problem.options[check_answer])
             if problem.options[check_answer] == problem.answer: #해당 선지 번호의 답변과 problem.answer가 동일하다면 True
                 User_TF = "True"
             
@@ -258,7 +258,7 @@ async def Check_User_Answer(problems: List[problem_schema.problem], quiz_id :int
 
 
 
-@router.post("/{quiz_id}/feedBack", response_model=Optional[problem_schema.Problem])
+@router.post("/{quiz_id}/feedBack", response_model=Optional[problem_schema.problem])
 async def FeedBack(quiz_id: int, problem_id: int, feedback: int, db: Session = Depends(get_db)):
     if feedback < 1 or feedback > 10:
         raise HTTPException(status_code=400, detail="Feedback must be between 1 and 10")
