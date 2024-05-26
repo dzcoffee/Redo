@@ -6,7 +6,9 @@ from domain.memo import memo_router
 from domain.user import user_router
 from domain.problem import problem_router
 from domain.quiz import quiz_router
+from router import auth_router
 from database import Base, engine
+import router.auth_router
 
 app = FastAPI()
 
@@ -28,6 +30,7 @@ app.include_router(memo_router.router)
 app.include_router(user_router.router)
 app.include_router(quiz_router.router)
 app.include_router(problem_router.router)
+app.include_router(auth_router.router)
 
 Base.metadata.create_all(engine)
 
