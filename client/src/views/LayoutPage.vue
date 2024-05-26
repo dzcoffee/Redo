@@ -10,13 +10,13 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
-import MainLayout from '@/components/layout/MainLayout.vue';
-import { useRoute } from 'vue-router';
+import { computed } from 'vue'
+import MainLayout from '@/components/layout/MainLayout.vue'
+import { useRoute } from 'vue-router'
 
-const route = useRoute();
+const route = useRoute()
 const isFocused = computed(() => {
-  return route.path.includes('/create') || route.path.includes('/game');
+  return route.path.includes('/create') || route.path.includes('/game')
 })
 </script>
 
@@ -32,6 +32,6 @@ const isFocused = computed(() => {
 }
 #interact-pane {
   height: 100%;
-  background-color: #FBFDFC;
+  background-color: #fbfdfc;
 }
 </style>
