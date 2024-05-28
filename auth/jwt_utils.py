@@ -1,6 +1,7 @@
 from fastapi import Depends, HTTPException
 from fastapi.security import OAuth2PasswordBearer
 from domain.security.token_schema import TokenData
+from datetime import datetime, timedelta
 from utils.logger import logger
 import jwt
 
@@ -9,6 +10,7 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
 SECRET_KEY = "zvojpryvdipvooazbtfkbjcrhnnumpjwlmbhrvyatjbyevzhjwkyyzgivsxhherq"
 ALGORITHM = "HS256"
+EXPIRATION_PERIOD = 30 # 30분
 
 def verify_token(token: str = Depends(oauth2_scheme)):
     credentials_exception = HTTPException(
@@ -33,5 +35,6 @@ def verify_token(token: str = Depends(oauth2_scheme)):
     # 검증된 토큰 데이터를 반환합니다.
     return token_data
 
-def create_token(data):
-    return jwt.encode({'data': data}, SECRET_KEY, algorithm=ALGORITHM)
+def create_token(user_id):
+    expiration = datetime.now() + timedelta(minutes=EXPIRATION_PERIOD)
+    return jwt.encode({'accountId': user_id, 'exp': expiration, 'iss': 'redo'}, SECRET_KEY, algorithm=ALGORITHM)
