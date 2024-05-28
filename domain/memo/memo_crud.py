@@ -21,6 +21,10 @@ def get_memo(db: Session, memo_id: int):
     memo = db.query(Memo).filter(Memo.id == memo_id).first()
     return memo
 
+def get_memo_by_user(db: Session, writer: int):
+    memo_list = db.query(Memo).filter(Memo.writer == writer).all()
+    return memo_list
+
 
 async def create_memo(db: Session, memo_create: MemoCreate):
     moderation_result = await moderate_text(memo_create.content)
