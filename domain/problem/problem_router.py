@@ -54,30 +54,30 @@ async def Create_problems(quiz_id: int, db: Session = Depends(get_db)):
     messages = [{"role": "system","content": "You are a helpful quiz maker system and also speak Korean "}, 
 
                 {"role": "user","content": query},
-                {"role": "system", "content" : "The output format should be as follows, but If type is not '객관식', Please answer without option like '@!@!@!@{Option1}', '@!@!@!@{Option2}'.\n The number of quesiton follow the user input, but do not put 'the number' before question, just answer Question string.\n You must not say 'any other things' before 'Question'.\n Also you must input Separtor.\n Answer must be correct Answer.\n Commentary must be explaining how can you find the answer.\n Don't put 'Colon' Before any { } instance. '\n"
+                {"role": "system", "content" : "The output format should be as follows, but If type is not '객관식', Please answer without option like '@@!!!!!!@@{Option1}', '@@!!!!!!@@{Option2}'.\n The number of quesiton follow the user input, but do not put 'the number' before question, just answer Question string.\n You must not say 'any other things' before 'Question'.\n Also you must input Separtor.\n Answer must be correct Answer.\n Commentary must be explaining how can you find the answer.\n Don't put 'Colon' Before any { } instance. '\n"
                  +"Format:\n"
                  +"{Question}?"
-                 +"==========!!"
-                 + "@!@!@!@{Option1} "
-                 + "@!@!@!@{Option2} "
-                 + "@!@!@!@{Option3} "
-                 + "@!@!@!@{Option4} "
-                 +"==========!!"
+                 +"##==========!!"
+                 + "@@!!!!!!@@{Option1} "
+                 + "@@!!!!!!@@{Option2} "
+                 + "@@!!!!!!@@{Option3} "
+                 + "@@!!!!!!@@{Option4} "
+                 +"##==========!!"
                  +"{Answer}"
-                 +"==========!!"
+                 +"##==========!!"
                  +"{Commentary}"
-                 +"==========!!"
+                 +"##==========!!"
                  + "{Question}?"
-                 +"==========!!"
-                 + "@!@!@!@{Option1} "
-                 + "@!@!@!@{Option2} "
-                 + "@!@!@!@{Option3} "
-                 + "@!@!@!@{Option4} "
-                 + "==========!!"
+                 +"##==========!!"
+                 + "@@!!!!!!@@{Option1} "
+                 + "@@!!!!!!@@{Option2} "
+                 + "@@!!!!!!@@{Option3} "
+                 + "@@!!!!!!@@{Option4} "
+                 + "##==========!!"
                  +"{Answer}"
-                 +"==========!!"
+                 +"##==========!!"
                  +"{Commentary}"
-                 +"==========!!"
+                 +"##==========!!"
                  }
                 ]
 
@@ -86,7 +86,7 @@ async def Create_problems(quiz_id: int, db: Session = Depends(get_db)):
 
     print(answer)
 
-    divided_problems = answer.split("==========!!") #문제, Option, Answer, commentary 기준으로 나누기
+    divided_problems = answer.split("##==========!!") #문제, Option, Answer, commentary 기준으로 나누기
 
     print(divided_problems)
 
@@ -105,7 +105,7 @@ async def Create_problems(quiz_id: int, db: Session = Depends(get_db)):
             # 옵션 처리: 공백으로 구분된 옵션들을 배열로 변환
             options_str = divided_problems[problem_counter].strip()
             if options_str:
-                options = [option.strip() for option in options_str.split("@!@!@!@") if option.strip()]
+                options = [option.strip() for option in options_str.split("@@!!!!!!@@") if option.strip()]
             else:
                 options = None
         problem_counter += 1  # 다음 문제로 이동
