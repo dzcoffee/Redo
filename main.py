@@ -1,6 +1,7 @@
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 
 from domain.memo import memo_router
 from domain.user import user_router
@@ -8,6 +9,7 @@ from domain.problem import problem_router
 from domain.quiz import quiz_router
 from router import auth_router
 from database import Base, engine
+from utils.logger import logger
 import router.auth_router
 
 app = FastAPI()
@@ -26,6 +28,15 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# 응답 직전에 토큰 재발급
+@app.middleware("http")
+async def refresh_token_per_request(request: Request, call_next):
+    response = await call_next(request)
+    if hasattr(request.state, "access_token") and response.status_code == 200:
+        response.headers["X-New-Token"] = request.state.access_token
+    return response
+
 app.include_router(memo_router.router)
 app.include_router(user_router.router)
 app.include_router(quiz_router.router)
