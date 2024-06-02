@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session
 from starlette import status
 from database import get_db
 from domain.memo import memo_schema, memo_crud
+from auth.auth_validator import AuthValidator
 # import logging
 
 # logger = logging.getLogger("uvicorn")
@@ -10,6 +11,7 @@ from domain.memo import memo_schema, memo_crud
 
 router = APIRouter(
     prefix="/memo",
+    dependencies=[Depends(AuthValidator())]
 )
 
 

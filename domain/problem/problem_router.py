@@ -9,6 +9,7 @@ from typing import List, Optional
 
 import json
 
+from auth.auth_validator import AuthValidator
 from domain.memo import memo_schema, memo_crud
 from domain.quiz import quiz_schema, quiz_crud
 from domain.quiz_memo_group import memoQuizGroup_schema, memoQuizGroup_crud
@@ -31,6 +32,7 @@ DB_Problem_List = []
 
 router = APIRouter(
     prefix="/quiz/game",
+    dependencies=[Depends(AuthValidator())]
 )
 
 async def moderate_text(text: str):
