@@ -11,6 +11,10 @@ from database import get_db
 from domain.user import user_crud, user_schema
 from domain.user.user_crud import pwd_context
 
+from auth.auth import authenticate_user
+from auth.jwt_utils import create_token
+from utils.logger import logger
+
 ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24
 SECRET_KEY = "4ab2fce7a6bd79e1c014396315ed322dd6edb1c5d975c6b74a2904135172c03c"
 ALGORITHM = "HS256"
@@ -28,29 +32,12 @@ def user_create(_user_create: user_schema.UserCreate, db: Session = Depends(get_
                             detail="이미 존재하는 사용자입니다.")
     user_crud.create_user(db=db, user_create=_user_create)
 
-
 @router.post("/login", response_model=user_schema.Token)
-def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(),
-                           db: Session = Depends(get_db)):
-
-    # check user and password
-    user = user_crud.get_user(db, form_data.username)
-    if not user or not pwd_context.verify(form_data.password, user.password):
+async def get_auth_token(auth_request: user_schema.AuthRequest, db: Session = Depends(get_db)):
+    if not authenticate_user(db, auth_request):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Incorrect accountID or password",
-            headers={"WWW-Authenticate": "Bearer"},
+            detail="Incorrect id or password"
         )
-
-    # make access token
-    data = {
-        "sub": user.username,
-        "exp": datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-    }
-    access_token = jwt.encode(data, SECRET_KEY, algorithm=ALGORITHM)
-
-    return {
-        "access_token": access_token,
-        "token_type": "bearer",
-        "accountID": user.username
-    }
+    token = create_token(auth_request.accountID)
+    return user_schema.Token(access_token=token)
