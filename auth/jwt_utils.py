@@ -24,12 +24,11 @@ def verify_token(token: str = Depends(oauth2_scheme)):
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         username: str = payload.get("sub")
         
-        # username이 없으면 예외를 발생시킵니다.
+        # username이 없으면 예외
         if username is None:
             raise credentials_exception
         token_data = TokenData(username=username)
     except jwt.PyJWTError:
-        # 토큰 디코딩 중 오류가 발생하면 예외를 발생시킵니다.
         raise credentials_exception
     
     # 검증된 토큰 데이터를 반환합니다.
