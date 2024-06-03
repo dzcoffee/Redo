@@ -1,11 +1,12 @@
+import { computed, ref } from 'vue'
 import { defineStore } from 'pinia'
-import { ref } from 'vue'
 
 export const useAuthStore = defineStore(
   'auth',
   () => {
     const nickname = ref('')
     const accessToken = ref('')
+    const isAuthenticated = computed(() => !!accessToken.value)
 
     const setAuth = (data: { nickname: string; access_token: string }): void => {
       nickname.value = data.nickname
@@ -15,6 +16,7 @@ export const useAuthStore = defineStore(
     return {
       nickname,
       accessToken,
+      isAuthenticated,
       setAuth
     }
   },
