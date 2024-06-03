@@ -2,7 +2,7 @@
   <div class="panel user-info">
     <v-row class="info-pane pa-0 ma-0" align="center" justify="space-between">
       <img width="50" src="@/assets/logo.png" class="ma-0" />
-      <span class="hello-msg">닉네임의 메모</span>
+      <span class="hello-msg">{{ authStore.nickname }}의 메모</span>
     </v-row>
     <v-btn class="service-btn ma-1" elevation="1" @click="moveToQuiz">퀴즈 풀기</v-btn>
     <v-col class="d-flex justify-space-between">
@@ -11,15 +11,8 @@
     </v-col>
   </div>
   <div class="panel memo-list">
-    <v-btn
-      v-for="(memo, index) in memos"
-      :key="index"
-      class="memo-btn my-1 text-none"
-      elevation="0"
-      :ripple="false"
-      @click="() => moveToMemo(memo.id)"
-      >{{ memo.title }}</v-btn
-    >
+    <v-btn v-for="(memo, index) in memos" :key="index" class="memo-btn my-1 text-none" elevation="0" :ripple="false"
+      @click="() => moveToMemo(memo.id)">{{ memo.title }}</v-btn>
   </div>
   <div class="panel logout-pane">
     <v-btn class="service-btn my-2" elevation="1" @click="handleLogout">로그아웃</v-btn>
@@ -30,11 +23,13 @@
 import { getData } from '@/api/apis'
 import { onMounted } from 'vue'
 import { storeToRefs } from 'pinia'
+import { useAuthStore } from '@/stores/authStore'
 import { useMemoStore } from '@/stores/memoStore'
 import { useRouter } from 'vue-router'
 
 const { memos } = storeToRefs(useMemoStore())
 const router = useRouter()
+const authStore = useAuthStore()
 const handleLogout = (): void => {
   router.push('/login')
 }

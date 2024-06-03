@@ -51,7 +51,7 @@ const handleLogin = async (): Promise<void> => {
     .then((res) => {
       showToast('success', "로그인 성공");
       authStore.setAuth(res);
-      // router.push('/memo');
+      router.push('/memo');
     })
     .catch((e) => {
       showToast('error', '아이디 또는 비밀번호가 틀렸습니다.')
