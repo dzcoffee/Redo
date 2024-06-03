@@ -17,22 +17,25 @@ router = APIRouter(
     dependencies=[Depends(AuthValidator())]
 )
 
+@router.get("/all-dev-only", response_model=list[memo_schema.Memo], description="전체 메모 조회")
+def get_all_memo(db: Session=Depends(get_db)):
+    return memo_crud.get_memo_list(db)
 
 # Deprecated 예정
 @router.get("", response_model=list[memo_schema.Memo], description="메모 메인(목록) 페이지")
 #memo_list 함수의 리턴값은 Memo 스키마로 구성된 리스트
 def memo_list(request: Request, db: Session = Depends(get_db)):
-    userId = user_from_request(request)
-    logger.info(userId)
-    _memo_list = memo_crud.get_memo_by_user(db, userId)
+    user_id = user_from_request(request)
+    logger.info(user_id)
+    _memo_list = memo_crud.get_memo_by_user(db, user_id)
     return _memo_list
 
 
 @router.get("/{memo_id}", response_model=memo_schema.Memo, description="메모 조회 페이지")
 def memo_detail(memo_id: int, request: Request, db: Session = Depends(get_db)):
-    userId = user_from_request(request)
+    user_id = user_from_request(request)
     memo = memo_crud.get_memo(db, memo_id=memo_id)
-    if userId != memo.writer:
+    if user_id != memo.writer:
         raise HTTPException(status_code=401, detail="Incorrect user")
     return memo
 
@@ -43,9 +46,10 @@ async def memo_by_user(request: memo_schema.MemoByUserRequest, db: Session = Dep
     return memo_list
 
 @router.post("/create", status_code=status.HTTP_204_NO_CONTENT, description="메모 생성 페이지")
-async def memo_create( _memo_create: memo_schema.MemoCreate,
+async def memo_create( _memo_create: memo_schema.MemoCreate, request: Request,
                     db: Session = Depends(get_db)):
-    await memo_crud.create_memo(db=db, memo_create=_memo_create)
+    user_id = user_from_request(request)
+    await memo_crud.create_memo(db=db, memo_create=_memo_create, user_id=user_id)
 
 
 

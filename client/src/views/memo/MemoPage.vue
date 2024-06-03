@@ -39,10 +39,11 @@ onMounted(async () => {
     breaks: true,
     pedantic: false
   })
-  const res = await getDataById('/memo', route.params.id as string)
-  markdownStore.title = res.title
-  markdownStore.content = res.content
-  markdownStore.categories = res.categories
+  await getDataById('/memo', route.params.id as string).then((res) => {
+    markdownStore.title = res.title
+    markdownStore.content = res.content
+    markdownStore.categories = res.categories
+  })
 })
 </script>
 

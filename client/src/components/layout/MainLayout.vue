@@ -11,8 +11,15 @@
     </v-col>
   </div>
   <div class="panel memo-list">
-    <v-btn v-for="(memo, index) in memos" :key="index" class="memo-btn my-1 text-none" elevation="0" :ripple="false"
-      @click="() => moveToMemo(memo.id)">{{ memo.title }}</v-btn>
+    <v-btn
+      v-for="(memo, index) in memos"
+      :key="index"
+      class="memo-btn my-1 text-none"
+      elevation="0"
+      :ripple="false"
+      @click="() => moveToMemo(memo.id)"
+      >{{ memo.title }}</v-btn
+    >
   </div>
   <div class="panel logout-pane">
     <v-btn class="service-btn my-2" elevation="1" @click="handleLogout">로그아웃</v-btn>

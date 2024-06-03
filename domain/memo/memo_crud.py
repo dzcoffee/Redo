@@ -28,7 +28,7 @@ def get_memo_by_user(db: Session, writer: int):
     return memo_list
 
 
-async def create_memo(db: Session, memo_create: MemoCreate):
+async def create_memo(db: Session, memo_create: MemoCreate, user_id: str):
     moderation_result = await moderate_text(memo_create.content)
     logger.info(f"Moderation result: {moderation_result}")
     if moderation_result["flagged"]: #flagged==True
@@ -36,7 +36,7 @@ async def create_memo(db: Session, memo_create: MemoCreate):
         return {"error": "Inappropriate content detected"}
 
     #모데레이션 적용 후 메모 생성
-    db_memo = Memo(title=memo_create.title, content=memo_create.content,
+    db_memo = Memo(title=memo_create.title, content=memo_create.content, writer=user_id,
                            createAt=datetime.now())
     logger.info(f"Memo created: {db_memo}")
     db.add(db_memo)
