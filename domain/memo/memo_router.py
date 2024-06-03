@@ -35,9 +35,9 @@ async def memo_by_user(request: memo_schema.MemoByUserRequest, db: Session = Dep
     return memo_list
 
 @router.post("/create", status_code=status.HTTP_204_NO_CONTENT, description="메모 생성 페이지")
-def memo_create( _memo_create: memo_schema.MemoCreate,
+async def memo_create( _memo_create: memo_schema.MemoCreate,
                     db: Session = Depends(get_db)):
-    memo_crud.create_memo(db=db, memo_create=_memo_create)
+    await memo_crud.create_memo(db=db, memo_create=_memo_create)
 
 
 
