@@ -24,6 +24,10 @@ class AuthRequest(BaseModel):
     accountID: str
     password: str
 
+class AuthResponse(BaseModel):
+    nickname: str
+    access_token: str
+
 
 class Token(BaseModel):
     access_token: str
