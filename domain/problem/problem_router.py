@@ -1,11 +1,12 @@
 import openai
 from fastapi import APIRouter, Depends, HTTPException
 
-from openai import OpenAI
+import openai
 
 from database import get_db
 from sqlalchemy.orm import Session
 from typing import List, Optional
+from utils.logger import logger
 
 import json
 
@@ -19,10 +20,7 @@ from pydantic import BaseModel
 
 
 OPENAI_API_KEY = "sk-proj-p5uN3gZ9BbVgJGkJIE4OT3BlbkFJJ5y6pvXgzRFYYrcTopyk"
-
-client = OpenAI(
-    api_key = OPENAI_API_KEY
-)
+openai.api_key = OPENAI_API_KEY
 
 
 MODEL = "gpt-4o" #json형식 return 받으려면 1106버전 이상 
@@ -88,14 +86,14 @@ async def Create_problems(quiz_id: int, db: Session = Depends(get_db)):
                  }
                 ]
 
-    response = client.chat.completions.create(model=model, messages=messages, temperature=0.8, max_tokens=2048) #temperature 0.8이 한국어에 가장 적합하다는 정보가 있어서 적용시켜봄.
+    response = openai.ChatCompletion.create(model=model, messages=messages, temperature=0.8, max_tokens=2048) #temperature 0.8이 한국어에 가장 적합하다는 정보가 있어서 적용시켜봄.
     answer = response.choices[0].message.content #GPT의 답변 받는 거임.
 
-    print(answer)
+    logger.info(answer)
 
     divided_problems = answer.split("##==========!!") #문제, Option, Answer, commentary 기준으로 나누기
 
-    print(divided_problems)
+    logger.info(divided_problems)
 
     problem_list = [] #'문제', '옵션' / '문제', '옵션' /.... 이런식으로 저장됨. 단 옵션은 없으면 None으로 처리
 
@@ -117,17 +115,17 @@ async def Create_problems(quiz_id: int, db: Session = Depends(get_db)):
                 options = None
         problem_counter += 1  # 다음 문제로 이동
 
-        print(options) 
+        logger.info(options) 
 
         Quiz_ans = divided_problems[problem_counter].strip()
         problem_counter += 1
 
-        print(Quiz_ans)
+        logger.info(Quiz_ans)
 
         Quiz_commentary  = divided_problems[problem_counter].strip()
         problem_counter += 1
 
-        print(Quiz_commentary)
+        logger.info(Quiz_commentary)
 
         # 문제 객체 생성 및 리스트에 추가
         db_problem = problem_crud.create_problem(db, quiz_id=quiz_id, question=question, options=options or [], difficulty=db_quiz.difficulty, answer = Quiz_ans, comentary= Quiz_commentary)
@@ -151,14 +149,14 @@ async def Check_User_Answer(problems: List[problem_schema.problem], quiz_id :int
     
     problem_count = 0
     if(type == 1):
-        print("객관식임\n")
+        logger.info("객관식임\n")
         for problem in problems:
             check_answer = user_answer[problem_count] #N번째 문제의 유저 답변 
             check_answer = int(check_answer) - 1  # str형 -> int형, 1번부터 ~ -> 0번부터 ~
             User_TF = "False"
-            print(check_answer)
-            print(problem.answer)
-            print(problem.options[check_answer])
+            logger.info(check_answer)
+            logger.info(problem.answer)
+            logger.info(problem.options[check_answer])
             if problem.options[check_answer] == problem.answer: #해당 선지 번호의 답변과 problem.answer가 동일하다면 True
                 User_TF = "True"
             
@@ -173,13 +171,13 @@ async def Check_User_Answer(problems: List[problem_schema.problem], quiz_id :int
             problem_count = problem_count +1
 
              # 결과 출력
-            print(final_dict)
+            logger.info(final_dict)
             
 
     if(type == 0):
-        print("주관식임\n")
+        logger.info("주관식임\n")
         count = 1
-        print(problems)
+        logger.info(problems)
         for problem in problems: 
             history += f"Question {count} : {problem.question}\n"
 
@@ -193,7 +191,7 @@ async def Check_User_Answer(problems: List[problem_schema.problem], quiz_id :int
             #     history += "선택지 없음\n\n"
             count = count +1
 
-        print("we are out\n")
+        logger.info("we are out\n")
         model = MODEL
 
 
@@ -217,12 +215,12 @@ async def Check_User_Answer(problems: List[problem_schema.problem], quiz_id :int
                     }]
         
         
-        response = client.chat.completions.create(model=model, messages=messages)
+        response = openai.ChatCompletion.create(model=model, messages=messages)
         answer = response.choices[0].message.content
 
-        print(answer)
+        logger.info(answer)
 
-        print("\n\nit is answer \n\n ")
+        logger.info("\n\nit is answer \n\n ")
 
         sets = answer.strip().split("@@==========@@")
 
@@ -233,10 +231,10 @@ async def Check_User_Answer(problems: List[problem_schema.problem], quiz_id :int
                 # 모데레이션에서 부적절한 콘텐츠 감지
                 return {"error": "Inappropriate content detected in the response"}
 
-        print (sets)
+        logger.info(sets)
 
-        print("\nthis is user answer : \n")
-        print(user_answer)
+        logger.info("\nthis is user answer : \n")
+        logger.info(user_answer)
 
         # 각 세트를 순회하며 처리
         count_num = 0 #아래 problems와 user_answer 체크용 변수
@@ -261,11 +259,11 @@ async def Check_User_Answer(problems: List[problem_schema.problem], quiz_id :int
                 count_num = count_num+1
 
         # 결과 출력
-        print(final_dict)
+        logger.info(final_dict)
 
        
 
-        print("ended\n")
+        logger.info("ended\n")
 
     return final_dict
 
