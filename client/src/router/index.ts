@@ -23,7 +23,7 @@ const router = createRouter({
       name: 'home',
       component: LayoutPage,
       children: subRoutes,
-      redirect: '/login',
+      redirect: '/memo',
       meta: { requiresAuth: true }
     },
     {
