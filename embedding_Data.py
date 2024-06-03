@@ -39,7 +39,7 @@ while 1:
 
     cbt_options2 = driver.find_element(by=By.XPATH, value= "/html/body/table/tbody/tr/td/form/p/select")
     select2 = Select(cbt_options2)
-    select2.select_by_visible_text("정보처리기사") 
+    select2.select_by_visible_text("정보처리기사(구)") 
     cbt_options_select2 = driver.find_element(by=By.XPATH, value="/html/body/table/tbody/tr/td/form/p/input[3]")
     cbt_options_select2.click()
 
