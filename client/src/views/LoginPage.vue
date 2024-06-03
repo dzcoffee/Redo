@@ -11,15 +11,10 @@
         </span>
       </v-col>
       <v-col id="login-pane" class="pa-0 ma-0 d-flex flex-column align-center justify-center">
-        <input class="input mb-2 text-subtitle-1 text-md-h6 text-lg-h5" placeholder="아이디" :value="auth.username" @input="changeId" />
-        <input
-          type="password"
-          class="input mt-2 mb-4 text-subtitle-1 text-md-h6 text-lg-h5"
-          placeholder="비밀번호"
-          :value="auth.password"
-          @input="changePassword"
-          @keyup.enter="handleLogin"
-        />
+        <input class="input mb-2 text-subtitle-1 text-md-h6 text-lg-h5" placeholder="아이디" :value="auth.accountID"
+          @input="changeId" />
+        <input type="password" class="input mt-2 mb-4 text-subtitle-1 text-md-h6 text-lg-h5" placeholder="비밀번호"
+          :value="auth.password" @input="changePassword" @keyup.enter="handleLogin" />
         <v-btn class="auth-btn ma-2 text-subtitle-1 text-md-h6 text-lg-h5" @click="handleLogin">로그인</v-btn>
         <v-btn class="auth-btn ma-2 text-subtitle-1 text-md-h6 text-lg-h5" @click="handleSignUp">회원 가입</v-btn>
       </v-col>
@@ -30,14 +25,16 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { showToast } from '@/composables/toast'
-// import { signIn } from '@/api/apis';
+import { signIn } from '@/api/apis';
+import { useAuthStore } from '@/stores/authStore';
 import { useRouter } from 'vue-router'
 
 const router = useRouter()
-const auth = ref({ username: '', password: '' })
+const auth = ref({ accountID: '', password: '' })
+const authStore = useAuthStore()
 
 const changeId = (e: Event): void => {
-  auth.value.username = (e.target as HTMLTextAreaElement).value
+  auth.value.accountID = (e.target as HTMLTextAreaElement).value
 }
 
 const changePassword = (e: Event): void => {
@@ -45,18 +42,21 @@ const changePassword = (e: Event): void => {
 }
 
 const handleLogin = async (): Promise<void> => {
-  if (auth.value.username === '' || auth.value.password === '') {
+  if (auth.value.accountID === '' || auth.value.password === '') {
     showToast('error', '아이디와 비밀번호를 모두 입력해주세요.')
     return
   }
-  showToast('success', '로그인 성공')
-  router.push('/memo')
-  // await signIn(auth.value)
-  // .then(() =>{
-  //   showToast('success', "로그인 성공");
-  //   router.push('/memo');
-  // })
-  // .catch(() => showToast('error', '아이디 또는 비밀번호가 틀렸습니다.'));
+  console.log(auth.value)
+  await signIn(auth.value)
+    .then((res) => {
+      showToast('success', "로그인 성공");
+      authStore.setAuth(res);
+      // router.push('/memo');
+    })
+    .catch((e) => {
+      showToast('error', '아이디 또는 비밀번호가 틀렸습니다.')
+      console.log(e);
+    });
 }
 const handleSignUp = (): void => {
   router.push('/signup')

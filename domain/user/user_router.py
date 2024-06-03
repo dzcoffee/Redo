@@ -32,12 +32,13 @@ def user_create(_user_create: user_schema.UserCreate, db: Session = Depends(get_
                             detail="이미 존재하는 사용자입니다.")
     user_crud.create_user(db=db, user_create=_user_create)
 
-@router.post("/login", response_model=user_schema.Token)
+@router.post("/login", response_model=user_schema.AuthResponse)
 async def get_auth_token(auth_request: user_schema.AuthRequest, db: Session = Depends(get_db)):
-    if not authenticate_user(db, auth_request):
+    retrieved_user = authenticate_user(db, auth_request)
+    if not retrieved_user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Incorrect id or password"
         )
     token = create_token(auth_request.accountID)
-    return user_schema.Token(access_token=token)
+    return user_schema.AuthResponse(nickname=retrieved_user.nickname, access_token=token)
