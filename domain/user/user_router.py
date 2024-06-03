@@ -40,5 +40,5 @@ async def get_auth_token(auth_request: user_schema.AuthRequest, db: Session = De
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Incorrect id or password"
         )
-    token = create_token(auth_request.accountID)
+    token = create_token(retrieved_user.id)
     return user_schema.AuthResponse(nickname=retrieved_user.nickname, access_token=token)

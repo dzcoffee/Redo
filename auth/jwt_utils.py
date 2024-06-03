@@ -32,9 +32,12 @@ def refresh_token(token: str):
     payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
 
     if payload and payload['exp'] >= datetime.now(kst).timestamp():
-        return create_token(payload['accountId'])
+        return create_token(payload['userId'])
     return None
 
 def create_token(user_id):
     expiration = datetime.now(kst) + timedelta(minutes=EXPIRATION_PERIOD)
-    return jwt.encode({'accountId': user_id, 'exp': expiration, 'iss': 'redo'}, SECRET_KEY, algorithm=ALGORITHM)
+    return jwt.encode({'userId': user_id, 'exp': expiration, 'iss': 'redo'}, SECRET_KEY, algorithm=ALGORITHM)
+
+def get_user(token: str):
+    return jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])['userId']
