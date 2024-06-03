@@ -18,7 +18,8 @@ origins = [
     "https://redo:80", # 서버 배포 내부 도메인
     "https://port-0-redoback-1ru12mlvuze1ma.sel5.cloudtype.app", # 서버 배포 도메인
     "https://web-redo-1ru12mlvuze1ma.sel5.cloudtype.app", # 클라이언트 배포 도메인
-    "http://localhost:5173" # 로컬 클라이언트 도메인
+    "http://localhost:5173", # 로컬 클라이언트 도메인,
+    "http://localhost:5174"
 ]
 
 app.add_middleware(
