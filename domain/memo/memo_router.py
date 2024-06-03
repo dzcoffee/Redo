@@ -1,9 +1,12 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Request, HTTPException
 from sqlalchemy.orm import Session
 from starlette import status
 from database import get_db
 from domain.memo import memo_schema, memo_crud
+from auth.auth import user_from_request
 from auth.auth_validator import AuthValidator
+
+from utils.logger import logger
 # import logging
 
 # logger = logging.getLogger("uvicorn")
@@ -18,14 +21,19 @@ router = APIRouter(
 # Deprecated 예정
 @router.get("", response_model=list[memo_schema.Memo], description="메모 메인(목록) 페이지")
 #memo_list 함수의 리턴값은 Memo 스키마로 구성된 리스트
-def memo_list(db: Session = Depends(get_db)):
-    _memo_list = memo_crud.get_memo_list(db)
+def memo_list(request: Request, db: Session = Depends(get_db)):
+    userId = user_from_request(request)
+    logger.info(userId)
+    _memo_list = memo_crud.get_memo_by_user(db, userId)
     return _memo_list
 
 
 @router.get("/{memo_id}", response_model=memo_schema.Memo, description="메모 조회 페이지")
-def memo_detail(memo_id: int, db: Session = Depends(get_db)):
+def memo_detail(memo_id: int, request: Request, db: Session = Depends(get_db)):
+    userId = user_from_request(request)
     memo = memo_crud.get_memo(db, memo_id=memo_id)
+    if userId != memo.writer:
+        raise HTTPException(status_code=401, detail="Incorrect user")
     return memo
 
 # TODO: JWT 인증 구현시 request 제거 -> JWT 페이로드의 유저 ID로 대체

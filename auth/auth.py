@@ -1,9 +1,12 @@
+from fastapi import Request
 from sqlalchemy.orm import Session
 from domain.user.user_schema import AuthRequest
 from models import User
 from passlib.context import CryptContext
 
+from auth.jwt_utils import get_user
 from utils.logger import logger
+import jwt
 
 # 사용자 인증 및 토큰 생성
 
@@ -15,3 +18,11 @@ def authenticate_user(db: Session, request: AuthRequest):
     if not user or not pwd_context.verify(request.password, user.password):
         return False
     return user
+
+# 요청 데이터에서 사용자 정보 얻기
+def user_from_request(request: Request):
+    token = request.state.access_token
+    if not token:
+        return None
+    
+    return get_user(token)
