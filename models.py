@@ -28,6 +28,9 @@ class User(Base):
     accountID = Column(VARCHAR(20), unique=True)
     password = Column(VARCHAR(30))
 
+    def __str__(self):
+        return f'User(id={self.id}, nickname={self.nickname}, accountID={self.accountID}, password={self.password})'
+
 
 
   #  quiz_entities = relationship("Quiz_entity", back_populates="user_entity")

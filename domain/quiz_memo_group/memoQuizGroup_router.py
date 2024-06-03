@@ -1,10 +1,13 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from database import get_db
+
+from auth.auth_validator import AuthValidator
 from domain.quiz_memo_group import memoQuizGroup_crud, memoQuizGroup_schema
 
 router = APIRouter(
     prefix="/memoQuizGroup",
+    dependencies=[Depends(AuthValidator())]
 )
 
 

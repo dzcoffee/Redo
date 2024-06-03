@@ -17,7 +17,6 @@ const preview = computed(() => {
   changedText = changedText.replaceAll('&lt;', '<')
   changedText = changedText.replaceAll('&gt;', '>')
   changedText = changedText.replaceAll('&quot;', '"')
-  console.log(changedText)
   return changedText
 })
 

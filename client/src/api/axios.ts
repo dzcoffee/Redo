@@ -1,4 +1,6 @@
 import axios, { type AxiosInstance } from 'axios'
+import router from '@/router'
+import { useAuthStore } from '@/stores/authStore'
 
 const DUMMY_URL = 'http://localhost:3000'
 const SERVER_URL = process.env.NODE_ENV === 'development' ? 'http://localhost:8000' : 'https://port-0-redoback-1ru12mlvuze1ma.sel5.cloudtype.app'
@@ -19,6 +21,8 @@ const baseRequestInterceptor = (instance: AxiosInstance): void => {
         if (postPending) return Promise.reject(new Error('이미 요청이 진행중입니다.'))
         postPending = true
       }
+      // Authorization 헤더 추가
+      config.headers.Authorization = `Bearer ${useAuthStore().accessToken}`
       return config
     },
     (err) => {
@@ -40,12 +44,18 @@ const baseResponseInterceptor = (instance: AxiosInstance): void => {
       if (res.config.method === 'post') {
         postPending = false
       }
-      // console.log(res.data);
+      // 새로운 토큰이 있다면 갱신
+      if (res.headers['x-new-token']) {
+        useAuthStore().accessToken = res.headers['x-new-token']
+      }
       return res.data
     },
     async (err: any) => {
       if (err.config.method === 'post') {
         postPending = false
+      }
+      if (err.response?.status === 403) {
+        router.replace('/login')
       }
       console.log(err)
       return Promise.reject(err)
