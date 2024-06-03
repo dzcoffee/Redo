@@ -1,4 +1,5 @@
 import axios, { type AxiosInstance } from 'axios'
+import router from '@/router'
 import { useAuthStore } from '@/stores/authStore'
 
 const DUMMY_URL = 'http://localhost:3000'
@@ -52,6 +53,9 @@ const baseResponseInterceptor = (instance: AxiosInstance): void => {
     async (err: any) => {
       if (err.config.method === 'post') {
         postPending = false
+      }
+      if (err.response?.status === 403) {
+        router.replace('/login')
       }
       console.log(err)
       return Promise.reject(err)
