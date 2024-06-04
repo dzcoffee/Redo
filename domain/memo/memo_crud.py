@@ -40,8 +40,7 @@ async def create_memo(db: Session, memo_create: MemoCreate, user_id: str):
         return {"error": "Inappropriate content detected"}
 
     #모데레이션 적용 후 메모 생성
-    db_memo = Memo(title=memo_create.title, content=memo_create.content, writer=user_id,
-                           createAt=datetime.now())
+    db_memo = Memo.from_dto(memo_create, user_id)
     logger.info(f"Memo created: {db_memo}")
     db.add(db_memo)
     db.commit()

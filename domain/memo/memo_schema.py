@@ -1,6 +1,7 @@
 import datetime
 
 from pydantic import BaseModel, field_validator
+from typing import List
 
 
 class Memo(BaseModel):
@@ -16,6 +17,7 @@ class Memo(BaseModel):
 class MemoCreate(BaseModel):
     title: str
     content: str
+    categories: List[str]
 
     @field_validator('title', 'content')
     def not_empty(cls, v):
