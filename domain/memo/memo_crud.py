@@ -27,6 +27,10 @@ def get_memo_by_user(db: Session, writer: int):
     memo_list = db.query(Memo).filter(Memo.writer == writer).all()
     return memo_list
 
+def delete_memo(db: Session, memo_id: int):
+    db.query(Memo).filter(Memo.id == memo_id).delete()
+    db.commit()
+
 
 async def create_memo(db: Session, memo_create: MemoCreate, user_id: str):
     moderation_result = await moderate_text(memo_create.content)

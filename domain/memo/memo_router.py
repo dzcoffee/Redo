@@ -14,6 +14,7 @@ from utils.logger import logger
 
 router = APIRouter(
     prefix="/memo",
+    tags=["메모"],
     dependencies=[Depends(AuthValidator())]
 )
 
@@ -26,7 +27,7 @@ def get_all_memo(db: Session=Depends(get_db)):
 #memo_list 함수의 리턴값은 Memo 스키마로 구성된 리스트
 def memo_list(request: Request, db: Session = Depends(get_db)):
     user_id = user_from_request(request)
-    logger.info(user_id)
+    logger.info(f'user_id: {user_id}')
     _memo_list = memo_crud.get_memo_by_user(db, user_id)
     return _memo_list
 
@@ -35,6 +36,8 @@ def memo_list(request: Request, db: Session = Depends(get_db)):
 def memo_detail(memo_id: int, request: Request, db: Session = Depends(get_db)):
     user_id = user_from_request(request)
     memo = memo_crud.get_memo(db, memo_id=memo_id)
+
+    # 작성자가 아닌 사용자가 조회할 경우 401 에러 반환
     if user_id != memo.writer:
         raise HTTPException(status_code=401, detail="Incorrect user")
     return memo
@@ -45,14 +48,15 @@ async def memo_by_user(request: memo_schema.MemoByUserRequest, db: Session = Dep
     memo_list = memo_crud.get_memo_by_user(db, writer=request.writer)
     return memo_list
 
-@router.post("/create", status_code=status.HTTP_204_NO_CONTENT, description="메모 생성 페이지")
+@router.post("/create", status_code=status.HTTP_201_CREATED, description="메모 생성 페이지")
 async def memo_create( _memo_create: memo_schema.MemoCreate, request: Request,
                     db: Session = Depends(get_db)):
     user_id = user_from_request(request)
     await memo_crud.create_memo(db=db, memo_create=_memo_create, user_id=user_id)
 
-
-
+@router.delete("/delete-dev-only", status_code=status.HTTP_204_NO_CONTENT, description="메모 삭제 페이지")
+async def memo_delete(memo_id: int, db: Session = Depends(get_db)):
+    memo_crud.delete_memo(db, memo_id)
 
 
 
