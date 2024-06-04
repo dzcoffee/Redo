@@ -7,7 +7,8 @@ from domain.quiz_memo_group import memoQuizGroup_crud, memoQuizGroup_schema
 
 router = APIRouter(
     prefix="/memoQuizGroup",
-    dependencies=[Depends(AuthValidator())]
+    dependencies=[Depends(AuthValidator())],
+    tags=["퀴즈"]
 )
 
 

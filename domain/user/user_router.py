@@ -21,6 +21,7 @@ ALGORITHM = "HS256"
 
 router = APIRouter(
     prefix="/user",
+    tags=["사용자"]
 )
 
 
