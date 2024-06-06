@@ -55,6 +55,9 @@ async def create_memo(db: Session, memo_create: MemoCreate, user_id: str):
     db.add(db_memo)
     db.commit()
 
+    return db_memo.id  # 방금 생성된 메모의 ID 반환
+    
+
 
 
 
