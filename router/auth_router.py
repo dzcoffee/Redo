@@ -4,5 +4,6 @@ from utils.logger import logger
 from auth import jwt_utils as JWT
 
 router = APIRouter(
-    prefix="/auth"
+    prefix="/auth",
+    tags=["인증"]
 )

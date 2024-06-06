@@ -15,7 +15,8 @@ from domain.quiz_memo_group import memoQuizGroup_crud, memoQuizGroup_schema
 
 router = APIRouter(
     prefix="/quiz",
-    dependencies= [Depends(AuthValidator())]
+    dependencies= [Depends(AuthValidator())],
+    tags=["퀴즈"]
 )
 
 #퀴즈 옵션 선택한 거 받아와서 DB에 새로 생성하는 api
