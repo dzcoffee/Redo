@@ -1,14 +1,22 @@
-import openai
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
 
 import openai
+
+import pandas as pd
+import os
 
 from database import get_db
 from sqlalchemy.orm import Session
 from typing import List, Optional
 from utils.logger import logger
 
-import json
+from random import random, randint
+
+from auth.auth import user_from_request
+
+from numpy import dot
+from numpy.linalg import norm
+import numpy as np
 
 from auth.auth_validator import AuthValidator
 from domain.memo import memo_schema, memo_crud
@@ -39,8 +47,9 @@ async def moderate_text(text: str):
 
 #선택한 옵션으로 gpt api를 통해 생성된 문제를 쏴주는 api
 @router.get("/{quiz_id}", response_model=List[problem_schema.problem]) # << Problem entity Pydantic모델의 리스트로 리턴받음. ##, response_model=List[Problem]## 추가할 것
-async def Create_problems(quiz_id: int, db: Session = Depends(get_db)):
-
+async def Create_problems(quiz_id: int, request: Request, db: Session = Depends(get_db)):
+    
+    user_id = user_from_request(request)
     ##quiz_id로 quiz 정보 db에 요청
     db_quiz = quiz_crud.get_quiz_id(db, quiz_id)
 
@@ -50,6 +59,26 @@ async def Create_problems(quiz_id: int, db: Session = Depends(get_db)):
     if db_memo is None:
     # 적절한 예외 처리나 오류 메시지 반환
         raise HTTPException(status_code=404, detail="Memo not found")
+    
+    df = pd.read_csv(f'{user_id}_memo.csv')
+    result_row = df[df.iloc[:, 0] == db_memo.id]
+
+    if not result_row.empty:
+        memo_embeddings = result_row.iloc[0, 1]
+        print(f"메모 임베딩값: {memo_embeddings}\n")
+    else:
+        print("해당 memo_id 값을 찾을 수 없습니다.")
+    
+
+    if(db_quiz.count == 1):
+        gpt_quiz_count = 1
+    else:
+        gpt_quiz_count = random.randint(1, db_quiz.count-1)    
+
+    embeddings_quiz_count = db_quiz.count - gpt_quiz_count
+
+    if(embeddings_quiz_count != 0):
+        embedded_problem = get_problems_from_embeddings(embeddings_quiz_count, memo_embeddings, db_memo.categories, db)
 
     model = MODEL
 
@@ -131,6 +160,7 @@ async def Create_problems(quiz_id: int, db: Session = Depends(get_db)):
         db_problem = problem_crud.create_problem(db, quiz_id=quiz_id, question=question, options=options or [], difficulty=db_quiz.difficulty, answer = Quiz_ans, comentary= Quiz_commentary)
         problem_list.append(db_problem)
 
+    problem_list.append(embedded_problem)
     return problem_list #Problem을 List형식으로 반환
 
 
@@ -288,3 +318,27 @@ async def FeedBack(quiz_id: int, problem_id: int, feedback: int, db: Session = D
     db.commit()
     db.refresh(db_problem)
 
+# 코사인 유사도 계산 함수
+def cos_sim(A, B):
+    return dot(A, B)/(norm(A)*norm(B))
+
+
+def get_problems_from_embeddings(embeddings_quiz_count, memo_embeddings, category, db):
+        df = pd.read_csv(f'{category}_problem.csv')
+
+        problem_embeddings = df.iloc[:,1].tolist()
+        problem_embeddings = [np.fromstring(x[1:-1], sep=',') for x in problem_embeddings] # 문자열을 numpy 배열로 변환
+
+        # 코사인 유사도 계산
+        similarities = [cos_sim(memo_embeddings, pe) for pe in problem_embeddings]
+
+        # 유사도가 높은 순으로 정렬하고 상위 3개 선택
+        top_indices = np.argsort(similarities)[-embeddings_quiz_count:][::-1]
+        top_problem_id = [df.iloc[i, 0] for i in top_indices]
+        
+        problem_list = []
+        for problem_id in top_problem_id:
+            embedded_problem = problem_crud.get_problem(db, problem_id)
+            problem_list.append(embedded_problem)
+
+        return problem_list
