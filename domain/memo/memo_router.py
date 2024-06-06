@@ -12,6 +12,12 @@ import pandas as pd
 import os
 
 from utils.logger import logger
+
+from openai import OpenAI
+import openai
+
+import pandas as pd
+import os
 # import logging
 
 # logger = logging.getLogger("uvicorn")
@@ -19,7 +25,10 @@ from utils.logger import logger
 
 
 OPENAI_API_KEY = "sk-proj-p5uN3gZ9BbVgJGkJIE4OT3BlbkFJJ5y6pvXgzRFYYrcTopyk"
-openai.api_key = OPENAI_API_KEY
+from openai import OpenAI
+client = OpenAI(
+    api_key=OPENAI_API_KEY
+)
 
 
 router = APIRouter(
@@ -58,27 +67,33 @@ def memo_detail(memo_id: int, request: Request, db: Session = Depends(get_db)):
 async def memo_create( _memo_create: memo_schema.MemoCreate, request: Request,
                     db: Session = Depends(get_db)):
     user_id = user_from_request(request)
-    
+
     memo_id = await memo_crud.create_memo(db=db, memo_create=_memo_create, user_id=user_id)
 
     embeddings_memo = _memo_create.content
-    res = openai.embeddings.create(
-                input = embeddings_memo,
-                model = 'text-embedding-3-small'
+    print("임베딩전메모\n")
+    print(embeddings_memo)
+
+    res = client.embeddings.create(
+        input = embeddings_memo,
+        model = 'text-embedding-3-small'
     )
 
     embedding = res.data[0].embedding
+
     data_list = []
+
     data_list.append({
-        'memo_id' : memo_id,
+        'id' : memo_id,
         'embeddings' : embedding
     })
 
     print(data_list)
 
-    file_path = f"./{user_id}_memo.csv"
+    file_path = f"memo_csv/{user_id}_memo.csv"
 
     csv_save(file_path, data_list)
+
 
 def csv_save(file_path, data_list):
     # 데이터프레임 생성
@@ -97,11 +112,15 @@ def csv_save(file_path, data_list):
     df.to_csv(file_path, index=False)
 
     print(f"데이터가 {file_path}에 저장되었습니다.")
+    
+
+
 
 @router.patch("/{memo_id}", status_code=status.HTTP_200_OK, description="메모 내용 변경")
 async def memo_update(memo_id: int, dto: memo_schema.MemoCreate, request: Request, db: Session = Depends(get_db)):
     original_memo = safe_get_memo(request, memo_id, db)
     return memo_crud.update_memo(db, original_memo, dto)
+
 
 @router.delete("/{memo_id}", status_code=status.HTTP_204_NO_CONTENT, description="메모 삭제 페이지")
 async def memo_delete(memo_id: int, request: Request, db: Session = Depends(get_db)):
