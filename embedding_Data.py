@@ -3,15 +3,19 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import Select
 import time
 
-import openai
+from openai import OpenAI
 
 import pandas as pd
 import os
 
 file_path = "./problems.csv"
 
-openai.api_key = "sk-proj-p5uN3gZ9BbVgJGkJIE4OT3BlbkFJJ5y6pvXgzRFYYrcTopyk"
 model = 'text-embedding-3-small'
+
+OPENAI_API_KEY = "sk-proj-p5uN3gZ9BbVgJGkJIE4OT3BlbkFJJ5y6pvXgzRFYYrcTopyk"
+client = OpenAI(
+    api_key=OPENAI_API_KEY
+)
 
 driver = webdriver.Chrome()
 
@@ -39,7 +43,7 @@ while 1:
 
     cbt_options2 = driver.find_element(by=By.XPATH, value= "/html/body/table/tbody/tr/td/form/p/select")
     select2 = Select(cbt_options2)
-    select2.select_by_visible_text("정보처리기사(구)") 
+    select2.select_by_visible_text("정보처리기사") 
     cbt_options_select2 = driver.find_element(by=By.XPATH, value="/html/body/table/tbody/tr/td/form/p/input[3]")
     cbt_options_select2.click()
 
@@ -74,7 +78,7 @@ while 1:
         
         gpt_embeddings_input = question + '\n1)' + option1 + '\n2)' + option2 + '\n3)' + option3 + '\n4)' + option4
 
-        res = openai.embeddings.create(
+        res = client.embeddings.create(
             input = gpt_embeddings_input,
             model = 'text-embedding-3-small'
         )
@@ -87,8 +91,6 @@ while 1:
 
         data_list.append({
             'Question' : question,
-            'Options' : option1 + '\n' + option2 + '\n' + option3 + '\n' + option4 + '\n',
-            'Answer' : answer,
             'embedding_vectors' : embedding
         })
 

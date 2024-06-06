@@ -13,11 +13,11 @@ def get_problem_list(db: Session):
 
 
 async def get_problem(db: Session, problem_id: int):
-    problem = db.query(Problem).get(problem_id)
+    problem = db.query(Problem).filter(Problem.id == problem_id).first()
     return problem
 
 
-def create_problem(db: Session, quiz_id : int, question : str, difficulty : str, options : json, answer: str, comentary : str):
+async def create_problem(db: Session, quiz_id : int, question : str, difficulty : str, options : json, answer: str, comentary : str):
 
     db_problem = Problem(quizid = quiz_id, question=question, answer = answer, options=options, difficulty = difficulty, comentary = comentary)
     db.add(db_problem)
