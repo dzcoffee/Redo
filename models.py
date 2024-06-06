@@ -1,8 +1,10 @@
 
 from sqlalchemy import Column, Integer, String, Text, DateTime, ForeignKey, VARCHAR, JSON
-from sqlalchemy.orm import relationship
-
 from database import Base
+from datetime import datetime
+
+from domain.memo.memo_schema import MemoCreate
+from utils.time import kst
 
 
 class Memo(Base):
@@ -14,6 +16,16 @@ class Memo(Base):
     title = Column(String, nullable=False)
     content = Column(Text, nullable=False)
     createAt = Column(DateTime, nullable=False)
+
+    @staticmethod
+    def from_dto(dto: MemoCreate, user_id: str):
+        return Memo(
+            writer=user_id,
+            categories=",".join(dto.categories) if dto.categories else "",
+            title= dto.title,
+            content=dto.content,
+            createAt=datetime.now(kst)
+        )
 
   #  user_entity = relationship("User_entity", back_populates="memo_entities")
    # problem_groups = relationship("Problem_group", back_populates="memo_entity")

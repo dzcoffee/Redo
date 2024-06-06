@@ -11,11 +11,9 @@ class AuthValidator(HTTPBearer):
 
     async def __call__(self, request: Request) -> Optional[str]:
         credentials: HTTPAuthorizationCredentials = await super(AuthValidator, self).__call__(request)
-        logger.info(credentials)
         if credentials:
             if not credentials.scheme == "Bearer":
                 raise HTTPException(status_code=403, detail="Invalid authentication scheme.")
-            logger.info(credentials.credentials)
             if not self.verify_jwt(credentials.credentials):
                 raise HTTPException(status_code=403, detail="Invalid token or expired token.")
             new_token = refresh_token(credentials.credentials)

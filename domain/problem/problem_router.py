@@ -38,7 +38,8 @@ DB_Problem_List = []
 
 router = APIRouter(
     prefix="/quiz/game",
-    dependencies=[Depends(AuthValidator())]
+    dependencies=[Depends(AuthValidator())],
+    tags=["문제"]
 )
 
 async def moderate_text(text: str):
