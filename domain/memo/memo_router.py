@@ -49,11 +49,13 @@ async def memo_create( _memo_create: memo_schema.MemoCreate, request: Request,
     user_id = user_from_request(request)
     await memo_crud.create_memo(db=db, memo_create=_memo_create, user_id=user_id)
 
+@router.patch("/{memo_id}", status_code=status.HTTP_200_OK, description="메모 내용 변경")
+async def memo_update(memo_id: int, dto: memo_schema.MemoCreate, request: Request, db: Session = Depends(get_db)):
+    original_memo = safe_get_memo(request, memo_id, db)
+    return memo_crud.update_memo(db, original_memo, dto)
+
 @router.delete("/{memo_id}", status_code=status.HTTP_204_NO_CONTENT, description="메모 삭제 페이지")
 async def memo_delete(memo_id: int, request: Request, db: Session = Depends(get_db)):
     # 요청한 사용자와 메모 등록자가 같은지 확인
     safe_get_memo(request, memo_id, db)
     memo_crud.delete_memo(db, memo_id)
-
-
-
