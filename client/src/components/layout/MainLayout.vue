@@ -21,13 +21,13 @@
         </template>
         <v-list class="pa-0" density="compact">
           <v-list-item base-color="grey" link key="edit">
-            <template #prepend>
+            <template #append>
               <v-icon color="#67a58d">mdi-pencil</v-icon>
             </template>
-            <v-list-item-title @click="moveToEdit(memo.id)">메모 수정</v-list-item-title>
+            <v-list-item-title @click="() => moveToEdit(memo.id)">메모 수정</v-list-item-title>
           </v-list-item>
           <v-list-item base-color="grey" link key="delete">
-            <template #prepend>
+            <template #append>
               <v-icon color="#EA4335">mdi-trash-can-outline</v-icon>
             </template>
             <v-list-item-title @click="onDelete(memo.id)">메모 삭제</v-list-item-title>
@@ -69,7 +69,7 @@ const moveToQuiz = (): void => {
   router.push('/quiz')
 }
 const moveToEdit = (number: string): void => {
-  router.push(`memo/edit/${number}`)
+  router.push(`/memo/edit/${number}`)
 }
 const onDelete = async (number: string): Promise<void> => {
   await deleteData('memo', number)
