@@ -4,17 +4,16 @@
       <v-col class="d-flex flex-column align-center mb-5">
         <img width="80" src="@/assets/logo.png" />
         <span class="info text-subtitle-1 text-md-h6 text-lg-h5">회원가입</span>
+        <span class="text-subtitle-1">(특정 특수문자는 입력하실 수 없습니다.)</span>
       </v-col>
-      <InfoInput title="닉네임" placeholder="10자 이내" validText="10자 이내로 입력하세요." @update-input="onChangeNickname"></InfoInput>
-      <InfoInput title="아이디" placeholder="10자 이내" validText="10자 이내로 입력하세요." @update-input="onChangeAccountId"></InfoInput>
-      <InfoInput title="비밀번호" placeholder="10자 이내" validText="10자 이내로 입력하세요." @update-input="onChangePassword"></InfoInput>
-      <InfoInput
-        v-bind:valid="isDuplicated"
-        title="비밀번호 확인"
-        placeholder="다시 입력해주세요."
-        validText="10자 이내로 비밀번호와 일치하게 입력하세요."
-        @update-input="onChangeCheckPassword"
-      ></InfoInput>
+      <InfoInput title="닉네임" placeholder="10자 이내" validText="10자 이내로 입력하세요." @update-input="onChangeNickname">
+      </InfoInput>
+      <InfoInput title="아이디" placeholder="10자 이내" validText="10자 이내로 입력하세요." @update-input="onChangeAccountId">
+      </InfoInput>
+      <InfoInput title="비밀번호" placeholder="10자 이내" validText="10자 이내로 입력하세요." @update-input="onChangePassword">
+      </InfoInput>
+      <InfoInput v-bind:valid="isDuplicated" title="비밀번호 확인" placeholder="다시 입력해주세요."
+        validText="10자 이내로 비밀번호와 일치하게 입력하세요." @update-input="onChangeCheckPassword"></InfoInput>
       <v-col class="d-flex flex-column align-center">
         <v-btn class="register-btn" elevation="0" @click="handleRegister">회원 가입하기</v-btn>
       </v-col>

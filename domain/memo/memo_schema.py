@@ -7,6 +7,7 @@ from typing import List
 class Memo(BaseModel):
     id: int
     title: str
+    categories: List[str]
     content: str
     createAt: datetime.datetime
 

@@ -1,18 +1,13 @@
 <template>
   <v-col class="pa-0 my-2 d-flex align-center justify-space-between">
     <label class="mr-7 title">{{ title }}</label>
-    <input
-      :type="isSecure ? 'password' : 'text'"
-      class="info-input px-1"
-      :style="{ 'border-color': validColor }"
-      :placeholder="placeholder"
-      :value="inputValue"
-      @input="changeInput"
-    />
+    <input :type="isSecure ? 'password' : 'text'" class="info-input px-1" :style="{ 'border-color': validColor }"
+      :placeholder="placeholder" v-model="inputValue" :value="inputValue" @input="changeInput" />
     <v-btn v-if="buttonName" class="ml-7 check-btn" elevation="0" @click="handler">{{ buttonName }}</v-btn>
   </v-col>
   <v-col class="ma-0 pa-0 py-1">
-    <span v-if="!(valid && inputValue.length <= 10)" class="valid-text" :style="{ color: '#EA4335' }">{{ validText }}</span>
+    <span v-if="!(valid && inputValue.length <= 10)" class="valid-text" :style="{ color: '#EA4335' }">{{ validText
+      }}</span>
   </v-col>
 </template>
 
@@ -39,7 +34,7 @@ const validColor = computed(() => {
 const isSecure = computed(() => title.includes('비밀번호'))
 const inputValue = ref('')
 const changeInput = (e: Event): void => {
-  inputValue.value = (e.target as HTMLTextAreaElement).value
+  inputValue.value = (e.target as HTMLTextAreaElement).value.replace(/[,<>[\]\\'":;\s()/]+/g, '')
   emits('update-input', inputValue.value)
 }
 </script>

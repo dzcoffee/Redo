@@ -9,7 +9,7 @@ from starlette import status
 
 from database import get_db
 from domain.user import user_crud, user_schema
-from domain.user.user_crud import pwd_context
+from domain.user.user_crud import password_context
 
 from auth.auth import authenticate_user
 from auth.jwt_utils import create_token
@@ -24,9 +24,12 @@ router = APIRouter(
     tags=["사용자"]
 )
 
+@router.get("/all-dev-only", response_model=list[user_schema.UserDto])
+def user_all(db: Session = Depends(get_db)):
+    return user_crud.get_all_users(db)
 
 @router.post("/create", status_code=status.HTTP_204_NO_CONTENT)
-def user_create(_user_create: user_schema.UserCreate, db: Session = Depends(get_db)):
+def user_create(_user_create: user_schema.UserDto, db: Session = Depends(get_db)):
     user = user_crud.get_existing_user(db, user_create=_user_create)
     if user:
         raise HTTPException(status_code=status.HTTP_409_CONFLICT,

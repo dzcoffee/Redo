@@ -13,11 +13,17 @@ export const useAuthStore = defineStore(
       accessToken.value = data.access_token
     }
 
+    const clear = (): void => {
+      nickname.value = ''
+      accessToken.value = ''
+    }
+
     return {
       nickname,
       accessToken,
       isAuthenticated,
-      setAuth
+      setAuth,
+      clear
     }
   },
   { persist: { storage: localStorage, key: 'redo-tok' } }
