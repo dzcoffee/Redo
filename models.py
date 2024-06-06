@@ -27,6 +27,9 @@ class Memo(Base):
             createAt=datetime.now(kst)
         )
 
+    def __str__(self):
+        return f'Memo(id={self.id}, title={self.title}, categories={self.categories}, content={self.content})'
+
   #  user_entity = relationship("User_entity", back_populates="memo_entities")
    # problem_groups = relationship("Problem_group", back_populates="memo_entity")
 

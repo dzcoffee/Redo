@@ -54,6 +54,9 @@ const baseResponseInterceptor = (instance: AxiosInstance): void => {
       if (err.config.method === 'post') {
         postPending = false
       }
+      if (err.response.status === 401) {
+        router.replace((router.options.history.state.back as string) ?? '/')
+      }
       if (err.response?.status === 403) {
         router.replace('/login')
       }

@@ -21,11 +21,21 @@ def get_memo_list(db: Session):
 
 def get_memo(db: Session, memo_id: int):
     memo = db.query(Memo).filter(Memo.id == memo_id).first()
+    memo.categories = memo.categories.split(',')
     return memo
 
 def get_memo_by_user(db: Session, writer: int):
     memo_list = db.query(Memo).filter(Memo.writer == writer).all()
+    for memo in memo_list:
+        memo.categories = memo.categories.split(',')
     return memo_list
+
+def update_memo(db: Session, memo: Memo, dto: MemoCreate):
+    memo.title = dto.title
+    memo.categories = ','.join(dto.categories)
+    memo.content = dto.content
+    db.commit()
+    db.refresh(memo)
 
 def delete_memo(db: Session, memo_id: int):
     db.query(Memo).filter(Memo.id == memo_id).delete()

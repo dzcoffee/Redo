@@ -11,15 +11,30 @@
     </v-col>
   </div>
   <div class="panel memo-list">
-    <v-btn
-      v-for="(memo, index) in memos"
-      :key="index"
-      class="memo-btn my-1 text-none"
-      elevation="0"
-      :ripple="false"
-      @click="() => moveToMemo(memo.id)"
-      >{{ memo.title }}</v-btn
-    >
+    <div v-for="(memo, index) in memos" :key="index">
+      <v-btn class="memo-btn text-none my-1" elevation="0" :ripple="false" @click="() => moveToMemo(memo.id)">{{ memo.title }}</v-btn>
+      <v-menu transition="fade-transition">
+        <template v-slot:activator="{ props }">
+          <v-btn class="ml-4" size="30" color="transparent" icon="mdi-dots-horizontal" elevation="0" v-bind="props">
+            <v-icon size="24" color="grey">mdi-dots-horizontal</v-icon>
+          </v-btn>
+        </template>
+        <v-list class="pa-0" density="compact">
+          <v-list-item base-color="grey" link key="edit">
+            <template #append>
+              <v-icon color="#67a58d">mdi-pencil</v-icon>
+            </template>
+            <v-list-item-title @click="() => moveToEdit(memo.id)">메모 수정</v-list-item-title>
+          </v-list-item>
+          <v-list-item base-color="grey" link key="delete">
+            <template #append>
+              <v-icon color="#EA4335">mdi-trash-can-outline</v-icon>
+            </template>
+            <v-list-item-title @click="onDelete(memo.id)">메모 삭제</v-list-item-title>
+          </v-list-item>
+        </v-list>
+      </v-menu>
+    </div>
   </div>
   <div class="panel logout-pane">
     <v-btn class="service-btn my-2" elevation="1" @click="handleLogout">로그아웃</v-btn>
@@ -27,7 +42,7 @@
 </template>
 
 <script setup lang="ts">
-import { getData } from '@/api/apis'
+import { deleteData, getData } from '@/api/apis'
 import { onMounted } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useAuthStore } from '@/stores/authStore'
@@ -38,7 +53,8 @@ const { memos } = storeToRefs(useMemoStore())
 const router = useRouter()
 const authStore = useAuthStore()
 const handleLogout = (): void => {
-  router.push('/login')
+  authStore.clear()
+  router.replace('/login')
 }
 const moveToMemo = (number: string): void => {
   router.push(`/memo/${number}`)
@@ -51,6 +67,18 @@ const moveToMemoCreate = (): void => {
 }
 const moveToQuiz = (): void => {
   router.push('/quiz')
+}
+const moveToEdit = (number: string): void => {
+  router.push(`/memo/edit/${number}`)
+}
+const onDelete = async (number: string): Promise<void> => {
+  await deleteData('memo', number)
+    .then(() => {
+      memos.value = memos.value.filter((m) => m.id != number)
+    })
+    .catch((e) => {
+      console.error(e)
+    })
 }
 
 onMounted(async () => {
@@ -76,7 +104,7 @@ onMounted(async () => {
   justify-content: center;
 }
 .memo-btn {
-  width: 225px;
+  width: 180px;
   background-color: #335447;
   border-radius: 10px;
   color: white;

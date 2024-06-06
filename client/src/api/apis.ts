@@ -9,6 +9,14 @@ export const getDataById = (url: string, id: string): Promise<any> => {
   return baseInstance.get(`${url}/${id}`)
 }
 
+export const patchDataById = (url: string, id: string, data: unknown): Promise<any> => {
+  return baseInstance.patch(`${url}/${id}`, data)
+}
+
+export const deleteData = (url: string, id: string): Promise<any> => {
+  return baseInstance.delete(`${url}/${id}`)
+}
+
 export const postData = (url: string, data?: unknown): Promise<any> => {
   return baseInstance.post(`${url}`, data)
 }

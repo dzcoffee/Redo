@@ -23,7 +23,6 @@ module.exports = {
     'no-restricted-syntax': 'off',
     'vue/html-indent': 'off',
     'vue/max-attributes-per-line': [
-      'error',
       {
         singleline: 5, // 한 줄에 최대 5개의 속성을 허용
         multiline: 2
