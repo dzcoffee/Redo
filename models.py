@@ -70,10 +70,10 @@ class Problem(Base):
     __tablename__ = "problem"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    quizid = Column(Integer, ForeignKey('quiz.id'))
+    quizid = Column(Integer)
     question = Column(Text)
     answer = Column(Text)
-    difficulty = Column(VARCHAR(20), ForeignKey('quiz.difficulty'))
+    difficulty = Column(VARCHAR(20))
     options = Column(JSON)
     comentary = Column(Text) #해설용
 

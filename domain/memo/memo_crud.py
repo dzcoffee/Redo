@@ -15,7 +15,8 @@ client = OpenAI(
     api_key=OPENAI_API_KEY
 )
 
-async def moderate_text(text: str):
+def moderate_text(text: str):
+    logger.info(text)
     response = client.moderations.create(input=text)
     logger.info(f"Moderation response: {response}")
     return response.results[0]
@@ -50,12 +51,13 @@ def delete_memo(db: Session, memo_id: int):
     db.commit()
 
 
-async def create_memo(db: Session, memo_create: MemoCreate, user_id: str):
-    moderation_result = await moderate_text(memo_create.content)
+def create_memo(db: Session, memo_create: MemoCreate, user_id: str):
+    moderation_result = moderate_text(memo_create.content)
     logger.info(f"Moderation result: {moderation_result}")
     if moderation_result.flagged: #flagged==True
         # 모데레이션 부적절 감지
-        return {"error": "Inappropriate content detected"}
+        flag = 'Mod'
+        return flag
 
     #모데레이션 적용 후 메모 생성
     db_memo = Memo.from_dto(memo_create, user_id)

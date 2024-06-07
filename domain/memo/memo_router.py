@@ -68,7 +68,10 @@ async def memo_create( _memo_create: memo_schema.MemoCreate, request: Request,
                     db: Session = Depends(get_db)):
     user_id = user_from_request(request)
 
-    memo_id = await memo_crud.create_memo(db=db, memo_create=_memo_create, user_id=user_id)
+    memo_id = memo_crud.create_memo(db=db, memo_create=_memo_create, user_id=user_id)
+
+    if memo_id == 'Mod':
+        return {"error": "Inappropriate content detected"}
 
     embeddings_memo = _memo_create.content
     print("임베딩전메모\n")
@@ -88,7 +91,7 @@ async def memo_create( _memo_create: memo_schema.MemoCreate, request: Request,
         'embeddings' : embedding
     })
 
-    print(data_list)
+    #print(data_list)
 
     file_path = f"memo_csv/{user_id}_memo.csv"
 
@@ -99,6 +102,7 @@ def csv_save(file_path, data_list):
     # 데이터프레임 생성
     df = pd.DataFrame(data_list)
 
+    #print(data_list)
     # 파일이 존재하는지 확인
     if os.path.exists(file_path):
         # 파일이 존재하면 기존 데이터를 읽어옵니다.
