@@ -173,7 +173,7 @@ async def Create_problems(quiz_id: int, request: Request, db: Session = Depends(
                 options = [option.strip() for option in options_str.split("@@!!!!!!@@") if option.strip()]
             else:
                 options = None
-        problem_counter += 1  # 다음 문제로 이동
+            problem_counter += 1  # 다음 문제로 이동
 
         logger.info(quiz_id)
         logger.info(question)
@@ -197,13 +197,13 @@ async def Create_problems(quiz_id: int, request: Request, db: Session = Depends(
 
     print("임베디드프라블럼 추가 전")
     logger.info(problem_list)
-
-    for db_problem_id in embedded_problem:
-        db_problem_id = int(db_problem_id)
-        logger.info(db_problem_id)
-        saved_problem = problem_crud.get_problem(db, db_problem_id)
-        logger.info(saved_problem)
-        problem_list.append(saved_problem)
+    if(embeddings_quiz_count!=0):
+        for db_problem_id in embedded_problem:
+            db_problem_id = int(db_problem_id)
+            logger.info(db_problem_id)
+            saved_problem = problem_crud.get_problem(db, db_problem_id)
+            logger.info(saved_problem)
+            problem_list.append(saved_problem)
 
     print("프라블럼 리스트 함수 나오기 전")
     print(problem_list)
@@ -305,7 +305,7 @@ async def Check_User_Answer(problems: List[problem_schema.problem], quiz_id :int
         #moderation 적용
         for set in sets:
             moderation_result = moderate_text(set)
-            if moderation_result["flagged"]:
+            if moderation_result.flagged:
                 # 모데레이션에서 부적절한 콘텐츠 감지
                 return {"error": "Inappropriate content detected in the response"}
 
