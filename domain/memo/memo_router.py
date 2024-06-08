@@ -71,7 +71,7 @@ async def memo_create( _memo_create: memo_schema.MemoCreate, request: Request,
     memo_id = memo_crud.create_memo(db=db, memo_create=_memo_create, user_id=user_id)
 
     if memo_id == 'Mod':
-        return {"error": "Inappropriate content detected"}
+        raise HTTPException(status_code= 400, detail = "부적절한 내용이 감지됐습니다.")
 
     embeddings_memo = _memo_create.content
     print("임베딩전메모\n")
