@@ -30,7 +30,7 @@ MarkupSafe==2.1.5
 mdurl==0.1.2
 multidict==6.0.5
 numpy==1.26.4
-openai==0.28.0
+openai==1.25.0
 orjson==3.10.3
 passlib==1.7.4
 pyasn1==0.6.0
