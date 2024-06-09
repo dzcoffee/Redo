@@ -67,7 +67,6 @@ def memo_detail(memo_id: int, request: Request, db: Session = Depends(get_db)):
 async def memo_create( _memo_create: memo_schema.MemoCreate, request: Request,
                     db: Session = Depends(get_db)):
     user_id = user_from_request(request)
-
     memo_id = memo_crud.create_memo(db=db, memo_create=_memo_create, user_id=user_id)
 
     if memo_id == 'Mod':

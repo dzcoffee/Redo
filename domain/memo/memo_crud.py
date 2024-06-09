@@ -2,7 +2,7 @@ from datetime import datetime
 
 from openai import OpenAI
 import openai
-
+import logging
 from domain.memo.memo_schema import MemoCreate
 from models import Memo
 from utils.logger import logger
@@ -16,8 +16,18 @@ client = OpenAI(
 )
 
 def moderate_text(text: str):
-    logger.info(text)
-    response = client.moderations.create(input=text)
+    logger.info(f"Original text: {text}")
+
+    response = client.chat.completions.create(
+        model="gpt-3.5-turbo",
+        messages=[
+            {"role": "system", "content": "Translate to English."},
+            {"role": "user", "content": text},
+        ]
+    )
+    translated_text = response.choices[0].message.content
+    logger.info(f"translated response: {translated_text}")
+    response = client.moderations.create(input=translated_text)
     logger.info(f"Moderation response: {response}")
     return response.results[0]
 
