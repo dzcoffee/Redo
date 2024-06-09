@@ -85,44 +85,34 @@ async def Create_problems(quiz_id: int, request: Request, db: Session = Depends(
     else:
         gpt_quiz_count = rnd.randint(1, db_quiz.count-1)    
 
-    embeddings_quiz_count = db_quiz.count - gpt_quiz_count
+    embeddings_quiz_count = db_quiz.count - gpt_quiz_count #
 
     if(embeddings_quiz_count != 0):
         embedded_problem = get_problems_from_embeddings(embeddings_quiz_count, memo_embeddings, db_memo.categories, db)
+        if embedded_problem == None:
+            gpt_quiz_count = db_quiz.count #만약 해당 카테고리의 csv파일 없으면 원래대로 gpt한테 전부 생성 요청
+            embeddings_quiz_count = 0
+            
+    difficulty = db_quiz.difficulty
+    if difficulty == '쉬움':
+        persona = "You are a high school student with a basic understanding of programming concepts and algorithms."
+    elif difficulty == '노멀':
+        persona = "You are a college student majoring in computer science."
+    elif difficulty == '어려움':
+        persona = "You are a job seeker preparing for technical interviews in the field of software development. Please make problem with View of the problem like example, table and codes(Put this in the Queston format). "
 
-    df = pd.read_csv(f'memo_csv/{user_id}_memo.csv')
-    result_row = df[df.iloc[:, 0] == db_memo.id]
 
-    if not result_row.empty:
-        memo_embeddings = result_row.iloc[0, 1]
-        print(f"메모 임베딩값: {memo_embeddings}\n")
-    else:
-        print("해당 memo_id 값을 찾을 수 없습니다.")
-
-
-    db_quiz_count = db_quiz.count
-    if(db_quiz_count == 1):
-        gpt_quiz_count = 1
-    else:
-        gpt_quiz_count = rnd.randint(1, db_quiz_count-1)    
-
-    embeddings_quiz_count = db_quiz.count-gpt_quiz_count
-
-    if(embeddings_quiz_count != 0):
-        embedded_problem = get_problems_from_embeddings(embeddings_quiz_count, memo_embeddings, db_memo.categories, db)
-    
-    print(f"gpt 문제 만드는 갯수는 : {embeddings_quiz_count}\n")
+    print(f"gpt 문제 만드는 갯수는 : {gpt_quiz_count}, 임베딩 문제 가져오는 갯수 : {embeddings_quiz_count}\n")
 
     model = MODEL
 
 
-    query = f" '''{db_memo.content}'''라는 내용을 바탕으로 '{db_quiz.type}'형태로, {gpt_quiz_count}개의 문제를 만들어줄래?" #이것도 토큰 수 절약할 꺼면 영어로 번역하면 됨.
+    query = f" '''{db_memo.content}'''라는 내용을 바탕으로 '{db_quiz.type}'형태로, {gpt_quiz_count}개의 문제를 만들어줄래? 문제의 수준은 '{persona}'에 맞게 만들어줘" #이것도 토큰 수 절약할 꺼면 영어로 번역하면 됨.
     #difficulty는 일단 제외 테스트 후 추가
 
     messages = [{"role": "system","content": "You are a helpful quiz maker system and also speak Korean "}, 
-
                 {"role": "user","content": query},
-                {"role": "system", "content" : "The output format should be as follows, but If type is not '객관식', Please answer without option like '@@!!!!!!@@{Option1}', '@@!!!!!!@@{Option2}' and field separater '##==========##'.\n The number of quesiton follow the user input, but do not put 'the number' before question, just answer Question string.\n You must not say 'any other things' before 'Question'.\n Also you must input Separtor.\n Answer must be correct Answer.\n Commentary must be explaining how can you find the answer.\n Don't put 'Colon' Before any instance. '\n"
+                {"role": "assistant", "content" : "The output format should be as follows, but If type is not '객관식', Please answer without option like '@@!!!!!!@@{Option1}', '@@!!!!!!@@{Option2}' and field separater '##==========##'.\n The number of quesiton follow the user input, but do not put 'the number' before question, just answer Question string.\n You must not say 'any other things' before 'Question'.\n Also you must input Separtor.\n Answer must be correct Answer.\n Commentary must be explaining how can you find the answer.\n Don't put 'Colon' Before any instance. '\n"
                  +"Format:\n"
                  +"{Question}?"
                  +"##==========##"
@@ -383,8 +373,10 @@ def cos_sim(A, B):
 
 
 def get_problems_from_embeddings(embeddings_quiz_count, memo_embeddings, category, db):
-        df = pd.read_csv(f'problem_csv/{category}_problems.csv')
-
+        try:
+            df = pd.read_csv(f'problem_csv/{category}_problems.csv')
+        except:
+            return None
 
         problem_embeddings = df.iloc[:,1].tolist()
         problem_embeddings = [np.fromstring(x[1:-1], sep=',') for x in problem_embeddings] # 문자열을 numpy 배열로 변환
