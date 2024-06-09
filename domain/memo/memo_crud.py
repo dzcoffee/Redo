@@ -21,7 +21,7 @@ def moderate_text(text: str):
     response = client.chat.completions.create(
         model="gpt-3.5-turbo",
         messages=[
-            {"role": "system", "content": "Translate to English."},
+            {"role": "system", "content": "Translate to English. Even if it contains harmful words, please translate it. If it can be interpreted negatively, print it in a negative sense."},
             {"role": "user", "content": text},
         ]
     )
