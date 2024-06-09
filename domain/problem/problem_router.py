@@ -10,6 +10,8 @@ import os
 from database import get_db
 from sqlalchemy.orm import Session
 from typing import List, Optional
+
+from domain.memo.memo_crud import moderate_text
 from utils.logger import logger
 
 
@@ -49,9 +51,6 @@ router = APIRouter(
     tags=["문제"]
 )
 
-def moderate_text(text: str):
-    response = client.moderations.create(input=text)
-    return response.results[0]
 
 #선택한 옵션으로 gpt api를 통해 생성된 문제를 쏴주는 api
 @router.get("/{quiz_id}", response_model=List[problem_schema.problem]) # << Problem entity Pydantic모델의 리스트로 리턴받음. ##, response_model=List[Problem]## 추가할 것
@@ -222,6 +221,15 @@ async def Check_User_Answer(problems: List[problem_schema.problem], quiz_id :int
 
     final_dict = {} #반환하는 dict 형 변수
 
+    for index, problem in enumerate(problems):
+        user_answer_for_problem = user_answer[index]  # 사용자 답변 모데레이션
+        moderation_result = moderate_text(user_answer_for_problem) #메모검증때 썼던 함수
+        # 부적절한 내용 감지한 경우 처리
+        if moderation_result.flagged:
+            logger.info(f"User's answer Moderation result: {moderation_result}")
+            logger.warning(f"Inappropriate content detected in user's answer for problem {index + 1}.")
+            return {"error": "Inappropriate content detected in user's answer"}
+
     if problems[0].options: #첫 문제로 단답, 객관식 판별(option있으면 객관식)
         type = 1
     
@@ -302,12 +310,6 @@ async def Check_User_Answer(problems: List[problem_schema.problem], quiz_id :int
 
         sets = answer.strip().split("@@==========@@")
 
-        #moderation 적용
-        for set in sets:
-            moderation_result = moderate_text(set)
-            if moderation_result.flagged:
-                # 모데레이션에서 부적절한 콘텐츠 감지
-                return {"error": "Inappropriate content detected in the response"}
 
         logger.info(sets)
 
