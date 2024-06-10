@@ -12,9 +12,17 @@
         </v-list-item>
       </v-list>
     </v-menu>
-    <v-btn rounded color="#0C3324" append-icon="mdi-close-circle" class="category-btn mr-1 category text-md-caption"
-      @click="onDelete(index)" v-for="(category, index) in categories" :key="index" :ripple="false">{{ category
-      }}</v-btn>
+    <v-btn
+      rounded
+      color="#0C3324"
+      append-icon="mdi-close-circle"
+      class="category-btn mr-1 category text-md-caption"
+      @click="onDelete(index)"
+      v-for="(category, index) in categories"
+      :key="index"
+      :ripple="false"
+      >{{ category }}</v-btn
+    >
   </div>
 </template>
 
@@ -31,6 +39,7 @@ const CATEGORY_LIST = [
   '소프트웨어공학',
   '알고리즘',
   '설계패턴',
+  'OOP',
   'C',
   'C++',
   'Java',
@@ -49,10 +58,10 @@ const onDelete = (index: number): void => {
   categories.value.splice(index, 1)
 }
 
-const onClick = (newCategory: string,): void => {
+const onClick = (newCategory: string): void => {
   if (categories.value.includes(newCategory)) {
     categories.value = categories.value.filter((category) => category !== newCategory)
-    return;
+    return
   }
   categories.value.push(newCategory)
 }
