@@ -6,7 +6,7 @@
       <template v-slot:activator="{ props }">
         <v-btn rounded color="#0C3324" class="category-btn mr-1 category text-md-caption" v-bind="props">카테고리 선택</v-btn>
       </template>
-      <v-list class="pa-0" density="compact">
+      <v-list class="category-list pa-0" density="compact">
         <v-list-item class="py-0" link v-for="(category, index) in CATEGORY_LIST" :key="index">
           <v-list-item-title @click="onClick(category)">{{ category }}</v-list-item-title>
         </v-list-item>
@@ -95,6 +95,18 @@ const onClick = (newCategory: string): void => {
   border-radius: 6px;
 }
 .category-bar::-webkit-scrollbar-button {
+  display: none;
+}
+.category-list::-webkit-scrollbar {
+  width: 6px;
+  background-color: #67a58d;
+  border-radius: 6px;
+}
+.category-list::-webkit-scrollbar-thumb {
+  background-color: #0c3324;
+  border-radius: 6px;
+}
+.category-list::-webkit-scrollbar-button {
   display: none;
 }
 </style>
