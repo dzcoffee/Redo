@@ -1,14 +1,26 @@
-import openai
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi.responses import JSONResponse
 
-import openai
+from openai import OpenAI
+
+
+import pandas as pd
+import os
 
 from database import get_db
 from sqlalchemy.orm import Session
 from typing import List, Optional
 from utils.logger import logger
 
-import json
+
+import random as rnd
+
+
+from auth.auth import user_from_request
+
+from numpy import dot
+from numpy.linalg import norm
+import numpy as np
 
 from auth.auth_validator import AuthValidator
 from domain.memo import memo_schema, memo_crud
@@ -16,12 +28,15 @@ from domain.quiz import quiz_schema, quiz_crud
 from domain.quiz_memo_group import memoQuizGroup_schema, memoQuizGroup_crud
 from domain.problem import problem_schema, problem_crud
 
-from pydantic import BaseModel
+from pydantic import BaseModel, ValidationError
 
 
 OPENAI_API_KEY = "sk-proj-p5uN3gZ9BbVgJGkJIE4OT3BlbkFJJ5y6pvXgzRFYYrcTopyk"
-openai.api_key = OPENAI_API_KEY
 
+
+client = OpenAI(
+    api_key=OPENAI_API_KEY
+)
 
 MODEL = "gpt-4o" #json형식 return 받으려면 1106버전 이상 
 
@@ -34,14 +49,14 @@ router = APIRouter(
     tags=["문제"]
 )
 
-async def moderate_text(text: str):
-    response = openai.Moderation.create(input=text)
-    return response['results'][0]
+def moderate_text(text: str):
+    response = client.moderations.create(input=text)
+    return response.results[0]
 
 #선택한 옵션으로 gpt api를 통해 생성된 문제를 쏴주는 api
 @router.get("/{quiz_id}", response_model=List[problem_schema.problem]) # << Problem entity Pydantic모델의 리스트로 리턴받음. ##, response_model=List[Problem]## 추가할 것
-async def Create_problems(quiz_id: int, db: Session = Depends(get_db)):
-
+async def Create_problems(quiz_id: int, request: Request, db: Session = Depends(get_db)):
+    user_id = user_from_request(request)
     ##quiz_id로 quiz 정보 db에 요청
     db_quiz = quiz_crud.get_quiz_id(db, quiz_id)
 
@@ -51,48 +66,94 @@ async def Create_problems(quiz_id: int, db: Session = Depends(get_db)):
     if db_memo is None:
     # 적절한 예외 처리나 오류 메시지 반환
         raise HTTPException(status_code=404, detail="Memo not found")
+    
+    
+    df = pd.read_csv(f'memo_csv/{user_id}_memo.csv')
+    result_row = df[df.iloc[:, 0] == db_memo.id]
+
+    logger.info(result_row)
+
+    if not result_row.empty:
+        memo_embeddings = result_row.iloc[0, 1]
+        print(f"메모 임베딩값: {memo_embeddings}\n")
+    else:
+        print("해당 memo_id 값을 찾을 수 없습니다.")
+    
+
+    if(db_quiz.count == 1):
+        gpt_quiz_count = 1
+    else:
+        gpt_quiz_count = rnd.randint(1, db_quiz.count-1)    
+
+    embeddings_quiz_count = db_quiz.count - gpt_quiz_count
+
+    if(embeddings_quiz_count != 0):
+        embedded_problem = get_problems_from_embeddings(embeddings_quiz_count, memo_embeddings, db_memo.categories, db)
+
+    df = pd.read_csv(f'memo_csv/{user_id}_memo.csv')
+    result_row = df[df.iloc[:, 0] == db_memo.id]
+
+    if not result_row.empty:
+        memo_embeddings = result_row.iloc[0, 1]
+        print(f"메모 임베딩값: {memo_embeddings}\n")
+    else:
+        print("해당 memo_id 값을 찾을 수 없습니다.")
+
+
+    db_quiz_count = db_quiz.count
+    if(db_quiz_count == 1):
+        gpt_quiz_count = 1
+    else:
+        gpt_quiz_count = rnd.randint(1, db_quiz_count-1)    
+
+    embeddings_quiz_count = db_quiz.count-gpt_quiz_count
+
+    if(embeddings_quiz_count != 0):
+        embedded_problem = get_problems_from_embeddings(embeddings_quiz_count, memo_embeddings, db_memo.categories, db)
+    
+    print(f"gpt 문제 만드는 갯수는 : {embeddings_quiz_count}\n")
 
     model = MODEL
 
-    query = f" '''{db_memo.content}'''라는 내용을 바탕으로 '{db_quiz.type}'형태로, {db_quiz.count}개의 문제를 만들어줄래?" #이것도 토큰 수 절약할 꺼면 영어로 번역하면 됨.
+
+    query = f" '''{db_memo.content}'''라는 내용을 바탕으로 '{db_quiz.type}'형태로, {gpt_quiz_count}개의 문제를 만들어줄래?" #이것도 토큰 수 절약할 꺼면 영어로 번역하면 됨.
     #difficulty는 일단 제외 테스트 후 추가
 
     messages = [{"role": "system","content": "You are a helpful quiz maker system and also speak Korean "}, 
 
                 {"role": "user","content": query},
-                {"role": "system", "content" : "The output format should be as follows, but If type is not '객관식', Please answer without option like '@@!!!!!!@@{Option1}', '@@!!!!!!@@{Option2}'.\n The number of quesiton follow the user input, but do not put 'the number' before question, just answer Question string.\n You must not say 'any other things' before 'Question'.\n Also you must input Separtor.\n Answer must be correct Answer.\n Commentary must be explaining how can you find the answer.\n Don't put 'Colon' Before any { } instance. '\n"
+                {"role": "system", "content" : "The output format should be as follows, but If type is not '객관식', Please answer without option like '@@!!!!!!@@{Option1}', '@@!!!!!!@@{Option2}' and field separater '##==========##'.\n The number of quesiton follow the user input, but do not put 'the number' before question, just answer Question string.\n You must not say 'any other things' before 'Question'.\n Also you must input Separtor.\n Answer must be correct Answer.\n Commentary must be explaining how can you find the answer.\n Don't put 'Colon' Before any instance. '\n"
                  +"Format:\n"
                  +"{Question}?"
-                 +"##==========!!"
+                 +"##==========##"
                  + "@@!!!!!!@@{Option1} "
                  + "@@!!!!!!@@{Option2} "
                  + "@@!!!!!!@@{Option3} "
                  + "@@!!!!!!@@{Option4} "
-                 +"##==========!!"
+                 +"##==========##"
                  +"{Answer}"
-                 +"##==========!!"
+                 +"##==========##"
                  +"{Commentary}"
-                 +"##==========!!"
+                 +"##==========##"
                  + "{Question}?"
-                 +"##==========!!"
+                 +"##==========##"
                  + "@@!!!!!!@@{Option1} "
                  + "@@!!!!!!@@{Option2} "
                  + "@@!!!!!!@@{Option3} "
                  + "@@!!!!!!@@{Option4} "
-                 + "##==========!!"
+                 + "##==========##"
                  +"{Answer}"
-                 +"##==========!!"
+                 +"##==========##"
                  +"{Commentary}"
-                 +"##==========!!"
                  }
                 ]
 
-    response = openai.ChatCompletion.create(model=model, messages=messages, temperature=0.8, max_tokens=2048) #temperature 0.8이 한국어에 가장 적합하다는 정보가 있어서 적용시켜봄.
+    response = client.chat.completions.create(model=model, messages=messages) #temperature 0.8이 한국어에 가장 적합하다는 정보가 있어서 적용시켜봄.
     answer = response.choices[0].message.content #GPT의 답변 받는 거임.
 
     logger.info(answer)
 
-    divided_problems = answer.split("##==========!!") #문제, Option, Answer, commentary 기준으로 나누기
+    divided_problems = answer.split("##==========##") #문제, Option, Answer, commentary 기준으로 나누기
 
     logger.info(divided_problems)
 
@@ -103,9 +164,7 @@ async def Create_problems(quiz_id: int, db: Session = Depends(get_db)):
         question = divided_problems[problem_counter].strip() + '?'
         problem_counter += 1  # 옵션으로 이동
 
-        
-        if db_quiz.type == "객관식":
-
+        if db_quiz.type != "객관식":
             options = None
         else:
             # 옵션 처리: 공백으로 구분된 옵션들을 배열로 변환
@@ -114,8 +173,11 @@ async def Create_problems(quiz_id: int, db: Session = Depends(get_db)):
                 options = [option.strip() for option in options_str.split("@@!!!!!!@@") if option.strip()]
             else:
                 options = None
-        problem_counter += 1  # 다음 문제로 이동
+            problem_counter += 1  # 다음 문제로 이동
 
+        logger.info(quiz_id)
+        logger.info(question)
+        logger.info(db_quiz.difficulty)
         logger.info(options) 
 
         Quiz_ans = divided_problems[problem_counter].strip()
@@ -131,7 +193,22 @@ async def Create_problems(quiz_id: int, db: Session = Depends(get_db)):
         # 문제 객체 생성 및 리스트에 추가
         db_problem = problem_crud.create_problem(db, quiz_id=quiz_id, question=question, options=options or [], difficulty=db_quiz.difficulty, answer = Quiz_ans, comentary= Quiz_commentary)
         problem_list.append(db_problem)
+        logger.info(db_problem)
 
+    print("임베디드프라블럼 추가 전")
+    logger.info(problem_list)
+    if(embeddings_quiz_count!=0):
+        for db_problem_id in embedded_problem:
+            db_problem_id = int(db_problem_id)
+            logger.info(db_problem_id)
+            saved_problem = problem_crud.get_problem(db, db_problem_id)
+            logger.info(saved_problem)
+            problem_list.append(saved_problem)
+
+    print("프라블럼 리스트 함수 나오기 전")
+    print(problem_list)
+
+    #problem_list.append(embedded_problem)
     return problem_list #Problem을 List형식으로 반환
 
 
@@ -216,7 +293,7 @@ async def Check_User_Answer(problems: List[problem_schema.problem], quiz_id :int
                     }]
         
         
-        response = openai.ChatCompletion.create(model=model, messages=messages)
+        response = client.chat.completions.create(model=model, messages=messages)
         answer = response.choices[0].message.content
 
         logger.info(answer)
@@ -227,8 +304,8 @@ async def Check_User_Answer(problems: List[problem_schema.problem], quiz_id :int
 
         #moderation 적용
         for set in sets:
-            moderation_result = await moderate_text(set)
-            if moderation_result["flagged"]:
+            moderation_result = moderate_text(set)
+            if moderation_result.flagged:
                 # 모데레이션에서 부적절한 콘텐츠 감지
                 return {"error": "Inappropriate content detected in the response"}
 
@@ -269,6 +346,15 @@ async def Check_User_Answer(problems: List[problem_schema.problem], quiz_id :int
     return final_dict
 
 
+@router.get("/problems/check", response_model=List[problem_schema.problem])
+async def get_problem_api(problem_id: int, request: Request, db: Session = Depends(get_db)):
+    embedded_problem = problem_crud.get_problem(db, problem_id)
+    print("프린트")
+    print(problem_id)
+    print(embedded_problem)
+    list_problem = [embedded_problem]
+    return list_problem
+
 
 @router.post("/{quiz_id}/feedBack", response_model=Optional[problem_schema.problem])
 async def FeedBack(quiz_id: int, problem_id: int, feedback: int, db: Session = Depends(get_db)):
@@ -289,3 +375,32 @@ async def FeedBack(quiz_id: int, problem_id: int, feedback: int, db: Session = D
     db.commit()
     db.refresh(db_problem)
 
+
+# 코사인 유사도 계산 함수
+def cos_sim(A, B):
+    return dot(A, B)/(norm(A)*norm(B))
+
+
+
+def get_problems_from_embeddings(embeddings_quiz_count, memo_embeddings, category, db):
+        df = pd.read_csv(f'problem_csv/{category}_problems.csv')
+
+
+        problem_embeddings = df.iloc[:,1].tolist()
+        problem_embeddings = [np.fromstring(x[1:-1], sep=',') for x in problem_embeddings] # 문자열을 numpy 배열로 변환
+
+        memo_embeddings = np.fromstring(memo_embeddings[1:-1], sep=',')
+
+
+        # 코사인 유사도 계산
+        similarities = [cos_sim(memo_embeddings, pe) for pe in problem_embeddings]
+
+        # 유사도가 높은 순으로 정렬하고 상위 3개 선택
+        top_indices = np.argsort(similarities)[-embeddings_quiz_count:][::-1]
+        top_problem_id = [df.iloc[i, 0] for i in top_indices]
+
+
+        print("프라블럼 id")
+        print(top_problem_id)
+
+        return top_problem_id

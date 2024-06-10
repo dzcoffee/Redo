@@ -27,6 +27,9 @@ class Memo(Base):
             createAt=datetime.now(kst)
         )
 
+    def __str__(self):
+        return f'Memo(id={self.id}, title={self.title}, categories={self.categories}, content={self.content})'
+
   #  user_entity = relationship("User_entity", back_populates="memo_entities")
    # problem_groups = relationship("Problem_group", back_populates="memo_entity")
 
@@ -67,10 +70,10 @@ class Problem(Base):
     __tablename__ = "problem"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    quizid = Column(Integer, ForeignKey('quiz.id'))
+    quizid = Column(Integer)
     question = Column(Text)
     answer = Column(Text)
-    difficulty = Column(VARCHAR(20), ForeignKey('quiz.difficulty'))
+    difficulty = Column(VARCHAR(20))
     options = Column(JSON)
     comentary = Column(Text) #해설용
 

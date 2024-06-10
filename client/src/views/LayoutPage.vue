@@ -16,7 +16,7 @@ import { useRoute } from 'vue-router'
 
 const route = useRoute()
 const isFocused = computed(() => {
-  return route.path.includes('/create') || route.path.includes('/game')
+  return route.path.includes('/create') || route.path.includes('/game') || route.path.includes('/edit')
 })
 </script>
 

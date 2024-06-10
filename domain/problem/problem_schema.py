@@ -4,15 +4,13 @@ from typing import Optional, List
 #problem_entity 테이블
 class problem(BaseModel):
     id : int
-    quizid : int
+    quizid : Optional[int]
     question : str
-    difficulty : str
+    difficulty : Optional[str]
     answer : Optional[str]
     options : Optional[List[str]]
     comentary : Optional[str]
-    problem: Optional[str]
 
-    
 
 class Problem_eCreate(problem):
     
