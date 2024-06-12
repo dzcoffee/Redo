@@ -20,8 +20,8 @@
       </v-col>
       <v-col v-if="quizStore.state === QuizState.GRADE">
         <p class="answer">* 해설</p>
-        <p class="answer mb-2">{{ quizStore.rawAnswer[problemNumber + 1]['reason'] }}</p>
-        <QuizReview :data="quizStore.rawAnswer"></QuizReview>
+        <p class="answer mb-2">{{ quizStore.rawAnswer[problemNumber]['reason'] }}</p>
+        <QuizReview :data="quizStore.rawAnswer" :problem-id="problemId"></QuizReview>
       </v-col>
     </v-card-item>
     <v-card-actions>
@@ -37,8 +37,9 @@ import { type PropType } from 'vue'
 import QuizReview from '@/components/quiz/QuizReview.vue'
 import ShortAnswer from '@/components/quiz/ShortAnswer.vue'
 
-const { problemNumber, index, question, options } = defineProps({
+const { problemNumber, problemId, index, question, options } = defineProps({
   problemNumber: { type: Number, required: true, default: 0 },
+  problemId: { type: Number, required: true, default: 0 },
   index: { type: Number, required: true, default: 0 },
   question: { type: String, default: '', required: false },
   options: { type: Array as PropType<string[]>, default: () => [], required: false }
@@ -48,6 +49,8 @@ const quizStore = useQuizStore()
 const selectAnswer = (prop: string): void => {
   quizStore.answer[index] = prop
 }
+
+// console.log(problemNumber, quizStore.rawAnswer[problemNumber]['reason'], quizStore)
 </script>
 
 <style scoped>
