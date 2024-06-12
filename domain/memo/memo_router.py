@@ -79,7 +79,7 @@ async def memo_create( _memo_create: memo_schema.MemoCreate, request: Request,
 
     res = client.embeddings.create(
         input = embeddings_memo,
-        model = 'text-embedding-3-small'
+        model = 'text-embedding-3-large'
     )
 
     embedding = res.data[0].embedding
