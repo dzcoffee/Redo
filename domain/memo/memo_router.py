@@ -130,4 +130,16 @@ async def memo_update(memo_id: int, dto: memo_schema.MemoCreate, request: Reques
 async def memo_delete(memo_id: int, request: Request, db: Session = Depends(get_db)):
     # 요청한 사용자와 메모 등록자가 같은지 확인
     safe_get_memo(request, memo_id, db)
+    user_id = user_from_request(request)
+
+    path = f'memo_csv/{user_id}_memo.csv'
+    df = pd.read_csv(path)
+    first_col_name = df.columns[0]
+
+    # problem_id와 동일한 값이 있는 행 삭제
+    df = df[df[first_col_name] != memo_id]
+
+    # 수정된 DataFrame을 CSV 파일로 저장
+    df.to_csv(path, index=False)
+
     memo_crud.delete_memo(db, memo_id)

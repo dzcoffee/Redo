@@ -41,7 +41,7 @@ def delete_problem(db: Session, problem_id: int):
 
 def delete_problem_if_low_feedback(db: Session, problem_id: int, feedback: int):
     db_problem = db.query(Problem).get(problem_id)
-    if db_problem and feedback <= 4:
+    if db_problem and feedback <= 7:
         db.delete(db_problem)
         db.commit()
         return True

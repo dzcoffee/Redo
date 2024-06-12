@@ -75,7 +75,7 @@ async def Create_problems(quiz_id: int, request: Request, db: Session = Depends(
 
     if not result_row.empty:
         memo_embeddings = result_row.iloc[0, 1]
-        print(f"메모 임베딩값: {memo_embeddings}\n")
+        #print(f"메모 임베딩값: {memo_embeddings}\n")
     else:
         print("해당 memo_id 값을 찾을 수 없습니다.")
     
@@ -83,58 +83,153 @@ async def Create_problems(quiz_id: int, request: Request, db: Session = Depends(
     if(db_quiz.count == 1):
         gpt_quiz_count = 1
     else:
-        gpt_quiz_count = rnd.randint(1, db_quiz.count-1)    
+        gpt_quiz_count = rnd.randint(round(db_quiz.count/2), db_quiz.count-1) # GPT 문제 생성 갯수(랜덤)
 
-    embeddings_quiz_count = db_quiz.count - gpt_quiz_count #
-
+    embeddings_quiz_count = db_quiz.count - gpt_quiz_count #만들기로 한 갯수 중 gpt 문제 생성 갯수 제외한 임베딩 문제 갯수
+    embeddings_quiz_count_final = 0
     if(embeddings_quiz_count != 0):
         embedded_problem = get_problems_from_embeddings(embeddings_quiz_count, memo_embeddings, db_memo.categories)
+        embeddings_quiz_count_final = len(embedded_problem)
         if embedded_problem == None:
             gpt_quiz_count = db_quiz.count #만약 해당 카테고리의 csv파일 없으면 원래대로 gpt한테 전부 생성 요청
-            embeddings_quiz_count = 0
+        
+
+        logger.info(embeddings_quiz_count_final)
+
+    embedded_problem_list = []
+    print("임베디드프라블럼 추가 전")
+    added_embedded_problem_count = 0
+    logger.info(embedded_problem_list)
+    if(embeddings_quiz_count_final!=0): #만약 가져온 문제 id가 있으면
+        for db_problem_id in embedded_problem:
+            if added_embedded_problem_count == embeddings_quiz_count:
+                break
+            db_problem_id = int(db_problem_id)
+            logger.info(db_problem_id)
+            saved_problem = problem_crud.get_problem(db, db_problem_id)
+            saved_problem.correctness = 101 # 101 : 임베딩 DB문제 코드
+            if(db_quiz.type == "객관식"): #객관식에 맞는 option이 있는 문제인 경우 가져오기
+                if(saved_problem.options):
+                    logger.info(saved_problem)
+                    embedded_problem_list.append(saved_problem)
+                    added_embedded_problem_count += 1
+            else: #
+                if(saved_problem.options == []):
+                    logger.info(saved_problem)
+                    embedded_problem_list.append(saved_problem)
+                    added_embedded_problem_count += 1
+                else:
+                    continue
+        gpt_quiz_count = db_quiz.count - added_embedded_problem_count
             
     difficulty = db_quiz.difficulty
     if difficulty == '쉬움':
         persona = "You are a high school student with a basic understanding of programming concepts and algorithms."
-    elif difficulty == '노멀':
+        include_code_sample = False
+    elif difficulty == '중간':
         persona = "You are a college student majoring in computer science."
+        include_code_sample = False
     elif difficulty == '어려움':
-        persona = "You are a job seeker preparing for technical interviews in the field of software development. Please make problem with View of the problem like example, table and codes(Put this in the Queston format). "
+        persona = "You are a job seeker preparing for technical interviews in the field of software development. "
+        include_code_sample = True
 
 
-    print(f"gpt 문제 만드는 갯수는 : {gpt_quiz_count}, 임베딩 문제 가져오는 갯수 : {embeddings_quiz_count}\n")
+    print(f"gpt 문제 만드는 갯수는 : {gpt_quiz_count}, 임베딩 문제 가져오는 갯수 : {added_embedded_problem_count}\n")
 
     model = MODEL
 
+    if db_quiz.type == "객관식":
+        problem_type = "multiple choice"   
+    elif db_quiz.type == "단답식":
+        problem_type = "short answer"    
+    elif db_quiz.type == "주관식":
+        problem_type = "essay question"
+        
+    
 
-    query = f" '''{db_memo.content}'''라는 내용을 바탕으로 '{db_quiz.type}'형태로, {gpt_quiz_count}개의 문제를 만들어줄래? 문제의 수준은 '{persona}'에 맞게 만들어줘" #이것도 토큰 수 절약할 꺼면 영어로 번역하면 됨.
+
+    #query = f" '''{db_memo.content}'''라는 내용을 바탕으로 ''{problem_type}''형태로, {gpt_quiz_count}개의 문제를 만들어줄래? 문제의 수준은 '{persona}'에 맞게 만들어줘." #이것도 토큰 수 절약할 꺼면 영어로 번역하면 됨.
     #difficulty는 일단 제외 테스트 후 추가
 
-    messages = [{"role": "system","content": "You are a helpful quiz maker system and also speak Korean "}, 
+    query = f"Could you create {gpt_quiz_count} problems in the form of '{problem_type}' based on the content '''{db_memo.content}'''? Please make sure the difficulty level is suitable for user persona like '{persona}'."
+
+    if include_code_sample:
+        query += "Please include a code sample or table in the {Question} field !!! "
+    else:
+        query += "Please Don't include a code sample or table in the {Question} field !!! "
+    
+    system_message = ""
+    
+    if db_quiz.type == "객관식":
+        system_message_1 = """
+        The output format should be as follows.  
+        Don't forget field separator '##==========##' after {Question}. 
+        Don't input 'line break' and 'spacing' between separator.  
+        The number of quesiton follow the user input, but do not put 'the number' and string '{Question}' before question, just answer Question string.
+        You must not say 'any other things' before Question.
+        Answer must be correct Answer.
+        Commentary must be explaining how can you find the answer.
+        Don't put 'Colon' Before any instance.
+        Don't forget separator '##==========##' between each Quiz(with fields).
+
+        Format:\n
+        {Question}?
+        ##==========##
+        @@!!!!!!@@{Option1}
+        @@!!!!!!@@{Option2}
+        @@!!!!!!@@{Option3}
+        @@!!!!!!@@{Option4}
+        ##==========##
+        {Answer}
+        ##==========##
+        {Commentary}
+        ##==========##
+        {Question}?
+        ##==========##
+        @@!!!!!!@@{Option1}
+        @@!!!!!!@@{Option2}
+        @@!!!!!!@@{Option3}
+        @@!!!!!!@@{Option4}
+        ##==========##
+        {Answer}
+        ##==========##
+        {Commentary}
+        ##==========##
+        """
+        system_message = system_message_1
+    else:
+        system_message_2 = """
+        The output format should be as follows.  
+        Don't forget field separator '##==========##' after {Question}. 
+        Don't input 'line break' and 'spacing' between separator.  
+        The number of quesiton follow the user input, but do not put 'the number' and string '{Question}' before question, just answer Question string.
+        You must not say 'any other things' before Question.
+        Answer must be correct Answer.
+        Commentary must be explaining how can you find the answer.
+        Don't put 'Colon' Before any instance.
+        Don't forget separator '##==========##' between each Quiz(with fields) it means after {Commentary}!!.
+        
+        Format:\n
+        {Question}?
+        ##==========##
+        {Answer}
+        ##==========##
+        {Commentary}
+        ##==========##
+        {Question}?
+        ##==========##
+        {Answer}
+        ##==========##
+        {Commentary}
+        ##==========##
+        """
+        system_message = system_message_2
+
+    #print(system_message_1)
+
+    messages = [{"role": "system","content": f"You are a helpful quiz maker system and also speak Korean. if "}, 
                 {"role": "user","content": query},
-                {"role": "assistant", "content" : "The output format should be as follows, but If type is not '객관식', Please answer without option like '@@!!!!!!@@{Option1}', '@@!!!!!!@@{Option2}' and field separater '##==========##'.\n The number of quesiton follow the user input, but do not put 'the number' before question, just answer Question string.\n You must not say 'any other things' before 'Question'.\n Also you must input Separtor.\n Answer must be correct Answer.\n Commentary must be explaining how can you find the answer.\n Don't put 'Colon' Before any instance. '\n"
-                 +"Format:\n"
-                 +"{Question}?"
-                 +"##==========##"
-                 + "@@!!!!!!@@{Option1} "
-                 + "@@!!!!!!@@{Option2} "
-                 + "@@!!!!!!@@{Option3} "
-                 + "@@!!!!!!@@{Option4} "
-                 +"##==========##"
-                 +"{Answer}"
-                 +"##==========##"
-                 +"{Commentary}"
-                 +"##==========##"
-                 + "{Question}?"
-                 +"##==========##"
-                 + "@@!!!!!!@@{Option1} "
-                 + "@@!!!!!!@@{Option2} "
-                 + "@@!!!!!!@@{Option3} "
-                 + "@@!!!!!!@@{Option4} "
-                 + "##==========##"
-                 +"{Answer}"
-                 +"##==========##"
-                 +"{Commentary}"
+                {"role": "system", "content" : system_message
                  }
                 ]
 
@@ -151,7 +246,7 @@ async def Create_problems(quiz_id: int, request: Request, db: Session = Depends(
 
     problem_counter = 0
     while problem_counter < len(divided_problems) - 1:  # 마지막 분할은 비어있을 수 있으므로 제외
-        question = divided_problems[problem_counter].strip() + '?'
+        question = divided_problems[problem_counter].strip()
         problem_counter += 1  # 옵션으로 이동
 
         if db_quiz.type != "객관식":
@@ -182,9 +277,12 @@ async def Create_problems(quiz_id: int, request: Request, db: Session = Depends(
 
         # 문제 객체 생성 및 리스트에 추가
         db_problem = problem_crud.create_problem(db, quiz_id=quiz_id, question=question, options=options or [], difficulty=db_quiz.difficulty, answer = Quiz_ans, comentary= Quiz_commentary)
-
-        gpt_embeddings_input = db_problem.question + "\n 1)" + db_problem.options[0] + "\n 2)" + db_problem.options[1] + "\n 3)" + db_problem.options[2] + "\n 4)" + db_problem.options[3]
-
+        
+        if db_quiz.type == '객관식':
+            gpt_embeddings_input = db_problem.question + "\n 1)" + db_problem.options[0] + "\n 2)" + db_problem.options[1] + "\n 3)" + db_problem.options[2] + "\n 4)" + db_problem.options[3]
+        else :
+            gpt_embeddings_input = db_problem.question
+    
         logger.info(gpt_embeddings_input)
 
         res = client.embeddings.create(
@@ -192,10 +290,10 @@ async def Create_problems(quiz_id: int, request: Request, db: Session = Depends(
             model = 'text-embedding-3-large'
         )
 
-        gpt_Make_embedding = res.data[0].embedding
-        print(gpt_Make_embedding)
+        gpt_Make_embedding = res.data[0].embedding #gpt한테서 막 나온 embedding
+       # print(gpt_Make_embedding)
 
-        gpt_Make_embedding_string= ','.join(map(str, gpt_Make_embedding))
+        gpt_Make_embedding_string= ','.join(map(str, gpt_Make_embedding)) # gpt 생성 문제 embedding 문자열화
         memo_embeddings_string = np.fromstring(memo_embeddings[1:-1], sep=',')
         gpt_Make_embedding_array = np.fromstring(gpt_Make_embedding_string[1:-1], sep=',')
 
@@ -205,6 +303,8 @@ async def Create_problems(quiz_id: int, request: Request, db: Session = Depends(
 
         PP_similarities = similarities_Problem_in_embbeding_DB(gpt_Make_embedding_string, db_memo.categories)
 
+        Top_similaritiy = Top_similarities_Problem_in_embbeding_DB(gpt_Make_embedding_string, db_memo.categories)
+
         correctness = int((MP_similarities + PP_similarities)*100/2)
         logger.info(correctness)
         db_problem.correctness = correctness
@@ -212,16 +312,17 @@ async def Create_problems(quiz_id: int, request: Request, db: Session = Depends(
         problem_list.append(db_problem)
         logger.info(db_problem)
 
-    print("임베디드프라블럼 추가 전")
-    logger.info(problem_list)
-    if(embeddings_quiz_count!=0):
-        for db_problem_id in embedded_problem:
-            db_problem_id = int(db_problem_id)
-            logger.info(db_problem_id)
-            saved_problem = problem_crud.get_problem(db, db_problem_id)
-            saved_problem.correctness = 101 # 101 : 임베딩 DB문제 코드
-            logger.info(saved_problem)
-            problem_list.append(saved_problem)
+        if(Top_similaritiy*100 <= 80):
+            path = f'problem_csv/{db_memo.categories}_problems.csv'
+            data_list = []
+            data_list.append({
+                'id' : db_problem.id,
+                'embeddings' : gpt_Make_embedding
+            })
+            csv_save(path, data_list)
+
+
+    problem_list.extend(embedded_problem_list)
 
     print("프라블럼 리스트 함수 나오기 전")
     print(problem_list)
@@ -367,15 +468,19 @@ async def Check_User_Answer(problems: List[problem_schema.problem], quiz_id :int
 @router.get("/problems/check", response_model=List[problem_schema.problem])
 async def get_problem_api(problem_id: int, request: Request, db: Session = Depends(get_db)):
     embedded_problem = problem_crud.get_problem(db, problem_id)
-    print("프린트")
-    print(problem_id)
-    print(embedded_problem)
     list_problem = [embedded_problem]
     return list_problem
 
 
 @router.post("/{quiz_id}/feedBack", response_model=Optional[problem_schema.problem])
 async def FeedBack(quiz_id: int, problem_id: int, feedback: int, db: Session = Depends(get_db)):
+    ##quiz_id로 묶인 memo 정보 db에 요청
+    db_memo= memoQuizGroup_crud.get_memoId(db, quiz_id)
+    file_path = f'problem_csv/{db_memo.categories}_problems.csv'
+    df = pd.read_csv(file_path)
+    # 첫 번째 열 이름 가져오기
+    first_col_name = df.columns[0]
+
     if feedback < 1 or feedback > 10:
         raise HTTPException(status_code=400, detail="Feedback must be between 1 and 10")
 
@@ -384,8 +489,18 @@ async def FeedBack(quiz_id: int, problem_id: int, feedback: int, db: Session = D
     if not db_problem:
         raise HTTPException(status_code=404, detail="Problem not found")
 
-    if feedback <= 4:
+    if feedback <= 7:
         if problem_crud.delete_problem_if_low_feedback(db, problem_id, feedback):
+            # problem_id와 동일한 값이 있는 행 삭제
+            # problem_id와 동일한 값이 있는지 확인
+            if problem_id not in df[first_col_name].values:
+                raise ValueError(f"problem_id '{problem_id}' not found in the first column.")
+            
+            # problem_id와 동일한 값이 있는 행 삭제
+            df = df[df[first_col_name] != problem_id]
+        
+            # 수정된 DataFrame을 CSV 파일로 저장
+            df.to_csv(file_path, index=False)
             return feedback
 
     # 문제에 피드백 저장
@@ -409,18 +524,21 @@ def get_problems_from_embeddings(embeddings_quiz_count, memo_embeddings, categor
         problem_embeddings = [np.fromstring(x[1:-1], sep=',') for x in problem_embeddings] # 문자열을 numpy 배열로 변환
 
         memo_embeddings = np.fromstring(memo_embeddings[1:-1], sep=',')
-
-
+        
         # 코사인 유사도 계산
         similarities = [cos_sim(memo_embeddings, pe) for pe in problem_embeddings]
 
-        # 유사도가 높은 순으로 정렬하고 상위 3개 선택
-        top_indices = np.argsort(similarities)[-embeddings_quiz_count:][::-1]
+        # 유사도와 인덱스를 함께 유지하며 0.5 이상인 유사도 필터링(0.5이상은 유사한 것으로 판단)
+        filtered_similarities = [(i, sim) for i, sim in enumerate(similarities) if sim < 0.5 and sim > 0.3]
+
+        logger.info(filtered_similarities)
+
+        # 유사도가 높은 순으로 정렬하고 상위 embeddings_quiz_count개 선택
+        filtered_similarities.sort(key=lambda x: x[1], reverse=True)
+        num_problems_to_select = min(20, len(filtered_similarities))
+        
+        top_indices = [filtered_similarities[i][0] for i in range(num_problems_to_select)]
         top_problem_id = [df.iloc[i, 0] for i in top_indices]
-
-
-        print("프라블럼 id")
-        print(top_problem_id)
 
         return top_problem_id
 
@@ -430,7 +548,7 @@ def similarities_Problem_in_embbeding_DB(memo_embeddings, category):
             df = pd.read_csv(f'problem_csv/{category}_problems.csv')
         except:
             return None
-
+        
         problem_embeddings = df.iloc[:,1].tolist()
         problem_embeddings = [np.fromstring(x[1:-1], sep=',') for x in problem_embeddings] # 문자열을 numpy 배열로 변환
 
@@ -445,3 +563,42 @@ def similarities_Problem_in_embbeding_DB(memo_embeddings, category):
 
         return average_similarity
 
+
+def Top_similarities_Problem_in_embbeding_DB(memo_embeddings, category):
+        try:
+            df = pd.read_csv(f'problem_csv/{category}_problems.csv')
+        except:
+            return None
+
+        problem_embeddings = df.iloc[:,1].tolist()
+        problem_embeddings = [np.fromstring(x[1:-1], sep=',') for x in problem_embeddings] # 문자열을 numpy 배열로 변환
+
+        memo_embeddings = np.fromstring(memo_embeddings[1:-1], sep=',')
+
+        # 코사인 유사도 계산
+        similarities = [cos_sim(memo_embeddings, pe) for pe in problem_embeddings]
+
+        high_similarity = max(similarities)
+
+        print(f"임베딩 DB와 가장 높은 유사도는 : {high_similarity}%입니다.")
+
+        return high_similarity
+
+def csv_save(file_path, data_list):
+    # 데이터프레임 생성
+    df = pd.DataFrame(data_list)
+
+    #print(data_list)
+    # 파일이 존재하는지 확인
+    if os.path.exists(file_path):
+        # 파일이 존재하면 기존 데이터를 읽어옵니다.
+        existing_df = pd.read_csv(file_path)
+        # 새로운 데이터프레임을 기존 데이터에 추가합니다.
+        df = pd.concat([existing_df, df], ignore_index=True)
+    else:
+        print(f"{file_path} 파일이 존재하지 않으므로 새로 생성합니다.")
+
+    # 데이터프레임을 CSV 파일에 저장
+    df.to_csv(file_path, index=False)
+
+    print(f"데이터가 {file_path}에 저장되었습니다.")
