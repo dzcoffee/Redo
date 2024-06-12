@@ -1,26 +1,46 @@
 <template>
   <div class="py-2 d-flex category-bar">
-    <!-- <input placeholder="카테고리 입력" class="category-input text-md-caption" :value="newCategory" @input="onInput"
-      @keyup.enter="onEnter" /> -->
     <v-dialog width="40%" persistent>
       <template #activator="{ props: on }">
-        <v-btn rounded color="primary" class="category-btn mr-1 category text-md-caption"
-          :class="!isRecClicked ? 'jiggle' : 'jiggle-stop'" v-bind="on" @mouseover="() => { isRecClicked = true }"
-          @click="getRecCategory">카테고리
-          추천!
-          <v-tooltip activator="parent" location="bottom">
-            GPT에게 카테고리를 추천받아보세요!
-          </v-tooltip>
+        <v-btn
+          rounded
+          color="primary"
+          class="category-btn mr-1 category text-md-caption"
+          :class="!isRecClicked ? 'jiggle' : 'jiggle-stop'"
+          v-bind="on"
+          @mouseover="
+            () => {
+              isRecClicked = true
+            }
+          "
+          @click="getRecCategory"
+          >카테고리 추천!
+          <v-tooltip activator="parent" location="bottom"> GPT에게 카테고리를 추천받아보세요! </v-tooltip>
         </v-btn>
       </template>
       <template v-slot:default="{ isActive }">
-        <v-card title="선택">
-          <v-card-text>
-            <v-btn id="accept-btn" text="확인" @click="onClose(isActive)"></v-btn>
+        <v-card title="추천 카테고리 선택" class="pa-2">
+          <v-card-text class="d-flex align-center justify-center">
+            <span v-if="recommendedCategories.length === 0 && content.trim() === ''" class="alert-msg">내용이 비어있습니다. 글을 작성해주세요.</span>
+            <v-btn v-else-if="recommendedCategories.length === 0" color="#67a58d" loading rounded class="mx-1" width="50%"></v-btn>
+            <div v-else class="d-flex flex-column">
+              <div class="d-flex mb-3">
+                <v-btn
+                  :color="selected[index] ? '#0C3324' : '#67a58d'"
+                  rounded
+                  class="mx-1"
+                  @click="selected[index] = !selected[index]"
+                  v-for="(category, index) in recommendedCategories"
+                  >{{ category }}
+                  <v-icon v-if="selected[index]" class="ml-2">mdi-check-circle</v-icon>
+                </v-btn>
+              </div>
+              <span>추천된 카테고리를 선택하세요.</span>
+            </div>
           </v-card-text>
           <v-card-actions>
             <v-spacer></v-spacer>
-            <v-btn id="accept-btn" text="확인" @click="onClose(isActive)"></v-btn>
+            <v-btn id="accept-btn" text="확인" @click="onStore(isActive)"></v-btn>
             <v-btn id="cancel-btn" text="취소" @click="onClose(isActive)"></v-btn>
           </v-card-actions>
         </v-card>
@@ -36,9 +56,17 @@
         </v-list-item>
       </v-list>
     </v-menu>
-    <v-btn rounded color="#0C3324" append-icon="mdi-close-circle" class="category-btn mr-1 category text-md-caption"
-      @click="onDelete(index)" v-for="(category, index) in categories" :key="index" :ripple="false">{{ category
-      }}</v-btn>
+    <v-btn
+      rounded
+      color="#0C3324"
+      append-icon="mdi-close-circle"
+      class="category-btn mr-1 category text-md-caption"
+      @click="onDelete(index)"
+      v-for="(category, index) in categories"
+      :key="index"
+      :ripple="false"
+      >{{ category }}</v-btn
+    >
   </div>
 </template>
 
@@ -46,7 +74,8 @@
 import { ref, type Ref } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useMarkdownStore } from '@/stores/markdownStore'
-import { postData } from '@/api/apis';
+import { postData } from '@/api/apis'
+import { showToast } from '@/composables/toast'
 
 const CATEGORY_LIST = [
   '컴퓨터구조',
@@ -73,6 +102,8 @@ const CATEGORY_LIST = [
 const { categories, content } = storeToRefs(useMarkdownStore())
 
 const isRecClicked = ref(false)
+const recommendedCategories = ref([])
+const selected = ref([false, false, false])
 
 const onClose = (prop: Ref<boolean>): void => {
   prop.value = false
@@ -90,21 +121,35 @@ const onClick = (newCategory: string): void => {
   categories.value.push(newCategory)
 }
 
+const onStore = (prop: Ref<boolean>): void => {
+  categories.value = recommendedCategories.value.filter((_, index) => selected.value[index])
+  prop.value = false
+}
+
 const getRecCategory = async (): Promise<void> => {
-  console.log(content.value)
-  const res = await postData('/memo/recommend', { content: content.value });
-  console.log(res);
+  recommendedCategories.value = []
+  selected.value = [false, false, false]
+  if (content.value.trim() === '') return
+  try {
+    const res = await postData('/memo/recommend', { content: content.value })
+    recommendedCategories.value = res
+  } catch {
+    showToast('error', '요청 실패')
+  }
 }
 </script>
 
 <style scoped>
 #accept-btn {
-  background-color: #67a58d;
-  color: white
+  background-color: #0c3324;
+  color: white;
 }
 #cancel-btn {
   background-color: grey;
-  color: white
+  color: white;
+}
+.alert-msg {
+  color: #ea4335;
 }
 .category {
   height: 24px;
