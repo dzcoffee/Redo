@@ -88,7 +88,7 @@ async def Create_problems(quiz_id: int, request: Request, db: Session = Depends(
     embeddings_quiz_count = db_quiz.count - gpt_quiz_count #
 
     if(embeddings_quiz_count != 0):
-        embedded_problem = get_problems_from_embeddings(embeddings_quiz_count, memo_embeddings, db_memo.categories, db)
+        embedded_problem = get_problems_from_embeddings(embeddings_quiz_count, memo_embeddings, db_memo.categories)
         if embedded_problem == None:
             gpt_quiz_count = db_quiz.count #만약 해당 카테고리의 csv파일 없으면 원래대로 gpt한테 전부 생성 요청
             embeddings_quiz_count = 0
@@ -182,6 +182,33 @@ async def Create_problems(quiz_id: int, request: Request, db: Session = Depends(
 
         # 문제 객체 생성 및 리스트에 추가
         db_problem = problem_crud.create_problem(db, quiz_id=quiz_id, question=question, options=options or [], difficulty=db_quiz.difficulty, answer = Quiz_ans, comentary= Quiz_commentary)
+
+        gpt_embeddings_input = db_problem.question + "\n 1)" + db_problem.options[0] + "\n 2)" + db_problem.options[1] + "\n 3)" + db_problem.options[2] + "\n 4)" + db_problem.options[3]
+
+        logger.info(gpt_embeddings_input)
+
+        res = client.embeddings.create(
+            input = gpt_embeddings_input,
+            model = 'text-embedding-3-large'
+        )
+
+        gpt_Make_embedding = res.data[0].embedding
+        print(gpt_Make_embedding)
+
+        gpt_Make_embedding_string= ','.join(map(str, gpt_Make_embedding))
+        memo_embeddings_string = np.fromstring(memo_embeddings[1:-1], sep=',')
+        gpt_Make_embedding_array = np.fromstring(gpt_Make_embedding_string[1:-1], sep=',')
+
+        MP_similarities = cos_sim(memo_embeddings_string, gpt_Make_embedding_array)
+        print("유사도\n")
+        logger.info(MP_similarities)
+
+        PP_similarities = similarities_Problem_in_embbeding_DB(gpt_Make_embedding_string, db_memo.categories)
+
+        correctness = int((MP_similarities + PP_similarities)*100/2)
+        logger.info(correctness)
+        db_problem.correctness = correctness
+
         problem_list.append(db_problem)
         logger.info(db_problem)
 
@@ -192,6 +219,7 @@ async def Create_problems(quiz_id: int, request: Request, db: Session = Depends(
             db_problem_id = int(db_problem_id)
             logger.info(db_problem_id)
             saved_problem = problem_crud.get_problem(db, db_problem_id)
+            saved_problem.correctness = 101 # 101 : 임베딩 DB문제 코드
             logger.info(saved_problem)
             problem_list.append(saved_problem)
 
@@ -371,8 +399,7 @@ def cos_sim(A, B):
     return dot(A, B)/(norm(A)*norm(B))
 
 
-
-def get_problems_from_embeddings(embeddings_quiz_count, memo_embeddings, category, db):
+def get_problems_from_embeddings(embeddings_quiz_count, memo_embeddings, category):
         try:
             df = pd.read_csv(f'problem_csv/{category}_problems.csv')
         except:
@@ -396,3 +423,25 @@ def get_problems_from_embeddings(embeddings_quiz_count, memo_embeddings, categor
         print(top_problem_id)
 
         return top_problem_id
+
+
+def similarities_Problem_in_embbeding_DB(memo_embeddings, category):
+        try:
+            df = pd.read_csv(f'problem_csv/{category}_problems.csv')
+        except:
+            return None
+
+        problem_embeddings = df.iloc[:,1].tolist()
+        problem_embeddings = [np.fromstring(x[1:-1], sep=',') for x in problem_embeddings] # 문자열을 numpy 배열로 변환
+
+        memo_embeddings = np.fromstring(memo_embeddings[1:-1], sep=',')
+
+        # 코사인 유사도 계산
+        similarities = [cos_sim(memo_embeddings, pe) for pe in problem_embeddings]
+
+        average_similarity = np.mean(similarities)
+
+        print(f"임베딩 DB와 평균 유사도는 : {average_similarity}%입니다.")
+
+        return average_similarity
+

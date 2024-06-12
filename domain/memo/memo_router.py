@@ -75,13 +75,10 @@ async def memo_create( _memo_create: memo_schema.MemoCreate, request: Request,
     print("임베딩전메모\n")
     print(embeddings_memo)
 
-    try: 
-      res = client.embeddings.create(
-          input = embeddings_memo,
-          model = 'text-embedding-3-small'
-      )
-    except Exception as e:
-        raise HTTPException(status_code= 500, detail = f"OpenAI 서버에 문제가 발생했습니다. 잠시 후 다시 시도해주세요. {e}")
+    res = client.embeddings.create(
+        input = embeddings_memo,
+        model = 'text-embedding-3-large'
+    )
 
     embedding = res.data[0].embedding
 
