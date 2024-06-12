@@ -58,7 +58,7 @@
     </v-menu>
     <v-btn
       rounded
-      color="#0C3324"
+      color="#67a58d"
       append-icon="mdi-close-circle"
       class="category-btn mr-1 category text-md-caption"
       @click="onDelete(index)"
