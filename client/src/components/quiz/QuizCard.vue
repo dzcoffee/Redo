@@ -1,7 +1,9 @@
 <template>
   <v-card width="80%" class="my-4">
     <div style="min-width: 0">
-      <v-card-title class="font-weight-bold">{{ question }}</v-card-title>
+      <v-card-title class="font-weight-bold" style="white-space: normal">
+        {{ question }}
+      </v-card-title>
       <v-card-subtitle v-if="quizStore.state === QuizState.GRADE">결과 확인</v-card-subtitle>
     </div>
     <v-card-item>
@@ -20,7 +22,7 @@
       </v-col>
       <v-col v-if="quizStore.state === QuizState.GRADE">
         <p class="answer">* 해설</p>
-        <p class="answer mb-2">{{ quizStore.rawAnswer[problemNumber]['reason'] }}</p>
+        <p class="answer mb-2">{{ quizStore.rawAnswer[quizStore.quizType === '단답식' ? index + 1 : index]['reason'] }}</p>
         <QuizReview :data="quizStore.rawAnswer" :problem-id="problemId"></QuizReview>
       </v-col>
     </v-card-item>
@@ -50,7 +52,7 @@ const selectAnswer = (prop: string): void => {
   quizStore.answer[index] = prop
 }
 
-// console.log(problemNumber, quizStore.rawAnswer[problemNumber]['reason'], quizStore)
+// console.log(problemNumber, quizStore.rawAnswer, quizStore)
 </script>
 
 <style scoped>

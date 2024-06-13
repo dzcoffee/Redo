@@ -43,6 +43,7 @@ const grading = async (): Promise<void> => {
   const res = await postData(`/quiz/game/${quizStore.quizId}`, { problems: quizStore.problems, user_answer: quizStore.answer }).catch(() =>
     showToast('error', '풀이 요청에 실패했습니다.')
   )
+  // console.log(res)
   showToast('info', '풀이를 확인하세요.')
   quizStore.rawAnswer = res
   quizStore.state = QuizState.GRADE

@@ -12,6 +12,12 @@
 <script setup lang="ts">
 import QuizSelectBox from '@/components/quiz/QuizSelectBox.vue'
 import QuizSettingBox from '@/components/quiz/QuizSettingBox.vue'
+import { useQuizStore } from '@/stores/quizStore'
+import { onMounted } from 'vue'
+
+const quizStore = useQuizStore()
+
+onMounted(() => quizStore.$reset())
 </script>
 
 <style scoped></style>
