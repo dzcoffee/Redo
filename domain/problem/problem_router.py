@@ -473,7 +473,7 @@ async def get_problem_api(problem_id: int, request: Request, db: Session = Depen
     return list_problem
 
 
-@router.post("/{quiz_id}/feedBack", response_model=Optional[problem_schema.problem])
+@router.post("/{quiz_id}/feedBack")
 async def FeedBack(quiz_id: int, feedback_request: problem_schema.FeedbackRequest, db: Session = Depends(get_db)):
     ##quiz_id로 묶인 memo 정보 db에 요청
     db_memo= memoQuizGroup_crud.get_memoId(db, quiz_id)
@@ -509,6 +509,7 @@ async def FeedBack(quiz_id: int, feedback_request: problem_schema.FeedbackReques
     db_problem.feedback = feedback
     db.commit()
     db.refresh(db_problem)
+    return feedback
 
 
 # 코사인 유사도 계산 함수
