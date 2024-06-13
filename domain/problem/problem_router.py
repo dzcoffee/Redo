@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.responses import JSONResponse
 
 from openai import OpenAI
-
+from starlette import status
 
 import pandas as pd
 import os
@@ -348,7 +348,8 @@ async def Check_User_Answer(request: problem_schema.CheckAnswerRequest):
         if moderation_result.flagged:
             logger.info(f"User's answer Moderation result: {moderation_result}")
             logger.warning(f"Inappropriate content detected in user's answer for problem {index + 1}.")
-            return {"error": "Inappropriate content detected in user's answer"}
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
+                            detail="부적절한 언어 감지")
 
     if problems[0].options: #첫 문제로 단답, 객관식 판별(option있으면 객관식)
         type = 1
