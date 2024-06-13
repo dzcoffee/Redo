@@ -38,6 +38,7 @@ const onRegister = async (): Promise<void> => {
     showToast('error', '빈 칸을 채워주세요.(제목, 카테고리, 내용)')
     return
   } else {
+    showToast('info', '등록 전 Moderation 수행 중... 잠시만 기다려주세요.')
     await postData('/memo/create', { title: title.value, categories: categories.value, content: content.value })
       .then(() => {
         showToast('success', '등록 성공')
