@@ -474,7 +474,7 @@ async def get_problem_api(problem_id: int, request: Request, db: Session = Depen
 
 
 @router.post("/{quiz_id}/feedBack", response_model=Optional[problem_schema.problem])
-async def FeedBack(feedback_request: problem_schema.FeedbackRequest, db: Session = Depends(get_db)):
+async def FeedBack(quiz_id: int, feedback_request: problem_schema.FeedbackRequest, db: Session = Depends(get_db)):
     ##quiz_id로 묶인 memo 정보 db에 요청
     db_memo= memoQuizGroup_crud.get_memoId(db, quiz_id)
     file_path = f'problem_csv/{db_memo.categories}_problems.csv'
