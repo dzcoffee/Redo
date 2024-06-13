@@ -169,7 +169,7 @@ async def Create_problems(quiz_id: int, request: Request, db: Session = Depends(
         Answer must be correct Answer.
         Commentary must be explaining how can you find the answer.
         Don't put 'Colon' Before any instance.
-        Don't forget separator '##==========##' between each Quiz(with fields).
+        Don't forget separator '##==========##' between each Quiz(with fields) that means after {Commentary}!!!!!
 
         Format:
         {Question}?
@@ -206,7 +206,7 @@ async def Create_problems(quiz_id: int, request: Request, db: Session = Depends(
         Answer must be correct Answer.
         Commentary must be explaining how can you find the answer.
         Don't put 'Colon' Before any instance.
-        Don't forget separator '##==========##' between each Quiz(with fields)!!!!!
+        Don't forget separator '##==========##' between each Quiz(with fields) that means after {Commentary}!!!!!
         
         Format:
         {Question}?
@@ -401,26 +401,32 @@ async def Check_User_Answer(request: problem_schema.CheckAnswerRequest):
         logger.info("we are out\n")
         model = MODEL
 
+        text_content = """
+        Please verify the answer of input question is Correct or False. 
+        And then Teach me what real answer is and why it is.
+        If there are Options and user answer is ['A1', 'A2'], The Question 1 of user answer is 'A1' and the Question 2 of user answer is 'A2'.
+        {gpt_answer} is Only A Answer that you verifed by question, '''Do not contain a Question.''' 
+        {gpt_Ture_False} form must be 'True' or 'False'.
+        {gpt_exaplanation_reason} is reason that user answer is T/F and what real answer is and why .
+        And each Set(gpt_answer, gpt_True_False, gpt_answer) must allocated at A Question and Each Set is divided by seperator '@@==========@@'.
+        Please do not answer with any 'Colon', Attribute like 'gpt_answer:' and bracket.
+        The output format must be as follows with korean.
+                    
+        Format:
+        {gpt_answer}==========!!
+        {gpt_Ture_False}==========!!
+        {gpt_exaplanation_reason}@@==========@@
+        {gpt_answer}==========!!
+        {gpt_Ture_False}==========!!
+        {gpt_exaplanation_reason}@@==========@@
+        """
 
         query = f"Please verify {user_answer} is correct, as the Answer of Question : {history} ."
 
         messages = [{"role": "system", "content" : "Check the before you maded question and verify user answers.\n"},
                     {"role": "user", "content" : query},
-                    {"role": "assistant", "content" : "Please verify the answer of input question is Correct or False.\n And then Teach me what real answer is and why it is. \n"
-                    +  "If there are Options and user answer is ['A1', 'A2'], The Question 1 of user answer is 'A1' and the Question 2 of user answer is 'A2'.  \n"
-                    + "{gpt_answer} is Only A Answer that you verifed by question, '''Do not contain a Question.'''  \n"
-                    + "{gpt_Ture_False} form must be 'True' or 'False'.\n"
-                    + "{gpt_exaplanation_reason} is 'the reason' user answer is True or False.\n"
-                    + "And each Set(gpt_answer, gpt_True_False, gpt_answer) must allocated at A Question and Each Set is divided by seperator '@@==========@@'.\n"
-                    + "Please do not answer with any 'Colon', Attribute like 'gpt_answer:' and bracket."
-                    + "The output format must be as follows with korean.\n"
-                    + "Format:"
-                    + "{gpt_answer}==========!!{gpt_Ture_False}==========!!"
-                    + "{gpt_exaplanation_reason}@@==========@@"
-                    + "{gpt_answer}==========!!{gpt_Ture_False}==========!!"
-                    + "{gpt_exaplanation_reason}@@==========@@"
+                    {"role": "system", "content" : text_content
                     }]
-        
         
         response = client.chat.completions.create(model=model, messages=messages)
         answer = response.choices[0].message.content
