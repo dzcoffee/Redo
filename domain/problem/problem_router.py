@@ -162,7 +162,7 @@ async def Create_problems(quiz_id: int, request: Request, db: Session = Depends(
     
     if db_quiz.type == "객관식":
         system_message_1 = """
-        The output format should be as follows.  
+        The output Format should be as follows!!!!!  
         Don't forget field separator '##==========##' after {Question}. 
         Don't input 'line break' and 'spacing' between separator.  
         The number of quesiton follow the user input, but do not put 'the number' and string '{Question}' before question, just answer Question string.
@@ -172,7 +172,7 @@ async def Create_problems(quiz_id: int, request: Request, db: Session = Depends(
         Don't put 'Colon' Before any instance.
         Don't forget separator '##==========##' between each Quiz(with fields).
 
-        Format:\n
+        Format:
         {Question}?
         ##==========##
         @@!!!!!!@@{Option1}
@@ -199,7 +199,7 @@ async def Create_problems(quiz_id: int, request: Request, db: Session = Depends(
         system_message = system_message_1
     else:
         system_message_2 = """
-        The output format should be as follows.  
+        The output Format should be as follows!!!!!  
         Don't forget field separator '##==========##' after {Question}. 
         Don't input 'line break' and 'spacing' between separator.  
         The number of quesiton follow the user input, but do not put 'the number' and string '{Question}' before question, just answer Question string.
@@ -209,7 +209,7 @@ async def Create_problems(quiz_id: int, request: Request, db: Session = Depends(
         Don't put 'Colon' Before any instance.
         Don't forget separator '##==========##' between each Quiz(with fields)!!!!!
         
-        Format:\n
+        Format:
         {Question}?
         ##==========##
         {Answer}
