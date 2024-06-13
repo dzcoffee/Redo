@@ -297,11 +297,11 @@ async def Create_problems(quiz_id: int, request: Request, db: Session = Depends(
         memo_embeddings_string = np.fromstring(memo_embeddings[1:-1], sep=',')
         gpt_Make_embedding_array = np.fromstring(gpt_Make_embedding_string[1:-1], sep=',')
 
-        MP_similarities = cos_sim(memo_embeddings_string, gpt_Make_embedding_array)
+        MP_similarities = cos_sim(memo_embeddings_string, gpt_Make_embedding_array) # 메모 내용과 생성 문제 내용 유사도
         print("유사도\n")
         logger.info(MP_similarities)
 
-        PP_similarities = similarities_Problem_in_embbeding_DB(gpt_Make_embedding_string, db_memo.categories)
+        PP_similarities = similarities_Problem_in_embbeding_DB(gpt_Make_embedding_string, db_memo.categories) # 임베딩 문제(여러 개)와 생성 문제
 
         Top_similaritiy = Top_similarities_Problem_in_embbeding_DB(gpt_Make_embedding_string, db_memo.categories)
 
@@ -496,7 +496,7 @@ async def FeedBack(quiz_id: int, feedback_request: problem_schema.FeedbackReques
             # problem_id와 동일한 값이 있는 행 삭제
             # problem_id와 동일한 값이 있는지 확인
             if problem_id not in df[first_col_name].values:
-                raise ValueError(f"problem_id '{problem_id}' not found in the first column.")
+                return feedback
             
             # problem_id와 동일한 값이 있는 행 삭제
             df = df[df[first_col_name] != problem_id]
