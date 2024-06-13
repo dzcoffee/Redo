@@ -36,10 +36,10 @@ const router = useRouter()
 const quizStore = useQuizStore()
 
 const isLoading = ref(false)
+const isGraded = ref(false)
 
 const grading = async (): Promise<void> => {
   isLoading.value = true
-  console.log(quizStore.problems)
   const res = await postData(`/quiz/game/${quizStore.quizId}`, { problems: quizStore.problems, user_answer: quizStore.answer }).catch(() =>
     showToast('error', '풀이 요청에 실패했습니다.')
   )
@@ -51,6 +51,7 @@ const grading = async (): Promise<void> => {
 }
 
 onMounted(() => {
+  // console.log(quizStore)
   quizStore.answer = new Array<string>(quizStore.problems.length).fill('')
   quizStore.state = QuizState.TEST
 })

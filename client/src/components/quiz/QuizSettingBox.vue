@@ -91,7 +91,7 @@ const options = {
     items: ['1', '2', '3', '4', '5']
   },
   type: {
-    items: ['객관식', '단답식']
+    items: ['객관식', '단답식', '주관식']
   },
   difficulty: {
     items: ['쉬움', '중간', '어려움']

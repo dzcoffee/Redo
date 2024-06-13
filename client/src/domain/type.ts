@@ -21,6 +21,7 @@ export type Problem = {
   question: string
   answer: string
   options: string[]
+  correctness: number
 }
 
 export type User = {

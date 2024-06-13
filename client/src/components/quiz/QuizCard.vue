@@ -2,7 +2,12 @@
   <v-card width="80%" class="my-4">
     <div style="min-width: 0">
       <v-card-title class="font-weight-bold" style="white-space: normal">
-        {{ question }}
+        <div class="d-flex flex-column">
+          {{ question }}
+          <v-btn :ripple="false" variance="outlined" elevation="0" rounded color="primary" v-if="problem.correctness <= 100" class="similarity"
+            >유사도: {{ problem.correctness }}%</v-btn
+          >
+        </div>
       </v-card-title>
       <v-card-subtitle v-if="quizStore.state === QuizState.GRADE">결과 확인</v-card-subtitle>
     </div>
@@ -35,7 +40,7 @@
 <script setup lang="ts">
 import { QuizState, useQuizStore } from '@/stores/quizStore'
 import MultipleChoice from '@/components/quiz/MultipleChoice.vue'
-import { type PropType } from 'vue'
+import { ref, type PropType } from 'vue'
 import QuizReview from '@/components/quiz/QuizReview.vue'
 import ShortAnswer from '@/components/quiz/ShortAnswer.vue'
 
@@ -47,17 +52,20 @@ const { problemNumber, problemId, index, question, options } = defineProps({
   options: { type: Array as PropType<string[]>, default: () => [], required: false }
 })
 const quizStore = useQuizStore()
-
+const problem = ref(quizStore.problems[index])
 const selectAnswer = (prop: string): void => {
   quizStore.answer[index] = prop
 }
-
-// console.log(problemNumber, quizStore.rawAnswer, quizStore)
 </script>
 
 <style scoped>
 .answer {
   color: #67a58d;
+}
+.similarity {
+  max-width: 120px;
+  font-size: 12px;
+  height: 24px;
 }
 .submit-btn {
   background-color: #335447;
