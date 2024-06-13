@@ -1,7 +1,9 @@
 <template>
-  <v-row class="my-3" align="center">
-    <v-btn class="choice-btn" elevation="0" :color="isSelected ? '#0C3324' : '#67A58D'" @click="onClick">{{ index + 1 }}</v-btn>
-    <span class="pl-4">{{ content }}</span>
+  <v-row class="my-4" align="center">
+    <div>
+      <v-btn class="choice-btn" elevation="0" :color="isSelected ? '#0C3324' : '#67A58D'" @click="onClick">{{ index + 1 }}</v-btn>
+      <span class="pl-4">{{ content }}</span>
+    </div>
   </v-row>
 </template>
 

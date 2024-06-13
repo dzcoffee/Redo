@@ -207,7 +207,7 @@ async def Create_problems(quiz_id: int, request: Request, db: Session = Depends(
         Answer must be correct Answer.
         Commentary must be explaining how can you find the answer.
         Don't put 'Colon' Before any instance.
-        Don't forget separator '##==========##' between each Quiz(with fields) it means after {Commentary}!!.
+        Don't forget separator '##==========##' between each Quiz(with fields)!!!!!
         
         Format:\n
         {Question}?
@@ -436,7 +436,7 @@ async def Check_User_Answer(request: problem_schema.CheckAnswerRequest):
 
         # 각 세트를 순회하며 처리
         count_num = 0 #아래 problems와 user_answer 체크용 변수
-        for i, set in enumerate(sets, start=1):
+        for i, set in enumerate(sets, start=0):
             if set:  # 세트가 비어있지 않은 경우에만 처리
                 parts = set.strip().split("==========!!")
                 # 세부 항목 분리 및 딕셔너리 구성
