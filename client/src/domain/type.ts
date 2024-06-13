@@ -16,11 +16,12 @@ export type Quiz = {
 }
 
 export type Problem = {
-  id: string
+  id: number
   quizid: string
   question: string
   answer: string
   options: string[]
+  correctness: number
 }
 
 export type User = {

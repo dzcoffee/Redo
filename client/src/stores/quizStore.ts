@@ -52,6 +52,11 @@ export const useQuizStore = defineStore(
       rawAnswer.value = {}
     }
 
+    const toString = (): string => {
+      return `Id: ${quizId.value}, Type: ${quizType.value}, Problems: ${problems.value}
+      Answer: ${answer.value}, rawAnswer: ${rawAnswer.value}`
+    }
+
     return {
       quizId,
       quizType,
@@ -59,7 +64,8 @@ export const useQuizStore = defineStore(
       state,
       answer,
       rawAnswer,
-      $reset
+      $reset,
+      toString
     }
   },
   { persist: { storage: localStorage } }

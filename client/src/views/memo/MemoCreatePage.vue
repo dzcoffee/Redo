@@ -39,7 +39,11 @@ const onRegister = async (): Promise<void> => {
     return
   } else {
     await postData('/memo/create', { title: title.value, categories: categories.value, content: content.value })
-    router.push('/memo')
+      .then(() => {
+        showToast('success', '등록 성공')
+        router.push('/memo')
+      })
+      .catch(() => showToast('error', '부적절한 내용이 감지됐습니다. 내용을 수정해주세요.'))
   }
 }
 </script>
