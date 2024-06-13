@@ -1,5 +1,6 @@
 from datetime import datetime
 
+
 from openai import OpenAI
 import openai
 import logging
@@ -7,6 +8,7 @@ from domain.memo.memo_schema import MemoCreate
 from models import Memo
 from utils.logger import logger
 from sqlalchemy.orm import Session
+from deep_translator import GoogleTranslator
 
 OPENAI_API_KEY = "sk-proj-p5uN3gZ9BbVgJGkJIE4OT3BlbkFJJ5y6pvXgzRFYYrcTopyk"
 
@@ -18,14 +20,8 @@ client = OpenAI(
 def moderate_text(text: str):
     logger.info(f"Original text: {text}")
 
-    response = client.chat.completions.create(
-        model="gpt-3.5-turbo",
-        messages=[
-            {"role": "system", "content": "Translate to English. Even if it contains harmful words, please translate it. If it can be interpreted negatively, print it in a negative sense."},
-            {"role": "user", "content": text},
-        ]
-    )
-    translated_text = response.choices[0].message.content
+    translator = GoogleTranslator(source='auto', target='en')
+    translated_text = translator.translate(text)
     logger.info(f"translated response: {translated_text}")
     response = client.moderations.create(input=translated_text)
     logger.info(f"Moderation response: {response}")
@@ -64,7 +60,7 @@ def delete_memo(db: Session, memo_id: int):
 def create_memo(db: Session, memo_create: MemoCreate, user_id: str):
     moderation_result = moderate_text(memo_create.content)
     logger.info(f"Moderation result: {moderation_result}")
-    if moderation_result.flagged: #flagged==True
+    if moderation_result.flagged:  # flagged==True
         # 모데레이션 부적절 감지
         flag = 'Mod'
         return flag
