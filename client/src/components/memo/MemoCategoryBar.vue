@@ -29,7 +29,7 @@
                   :color="selected[index] ? '#0C3324' : '#67a58d'"
                   rounded
                   class="mx-1"
-                  @click="selected[index] = !selected[index]"
+                  @click="onSelect(index)"
                   v-for="(category, index) in recommendedCategories"
                   >{{ category }}
                   <v-icon v-if="selected[index]" class="ml-2">mdi-check-circle</v-icon>
@@ -118,7 +118,17 @@ const onClick = (newCategory: string): void => {
     categories.value = categories.value.filter((category) => category !== newCategory)
     return
   }
-  categories.value.push(newCategory)
+  // categories.value.push(newCategory)
+  // 카테고리 1개만 선택
+  categories.value = [newCategory]
+}
+
+const onSelect = (index: number): void => {
+  if (selected.value[index]) {
+    selected.value[index] = false
+    return
+  }
+  selected.value = selected.value.map((_, i) => (i === index ? true : false))
 }
 
 const onStore = (prop: Ref<boolean>): void => {
