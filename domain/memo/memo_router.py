@@ -5,16 +5,14 @@ from database import get_db
 from domain.memo import memo_schema, memo_crud
 from auth.auth import user_from_request
 from auth.auth_validator import AuthValidator
-
-import openai
+from sklearn.metrics.pairwise import cosine_similarity
+from constant.embedding.category import CATEGORY_EMBEDDING, CATEGORY_NAME
 
 import pandas as pd
 import os
-
 from utils.logger import logger
 
 from openai import OpenAI
-import openai
 
 import pandas as pd
 import os
@@ -143,3 +141,18 @@ async def memo_delete(memo_id: int, request: Request, db: Session = Depends(get_
     df.to_csv(path, index=False)
 
     memo_crud.delete_memo(db, memo_id)
+
+@router.post("/recommend", description="메모 카테고리 추천")
+async def recommend_category(request: memo_schema.RecMemoCategoryReq):
+    # instant_embedding = memo_crud.recommend_category(content)
+    # return memo_crud.recommend_category(content)
+    instant_embedding = CATEGORY_EMBEDDING
+    content_embedding = client.embeddings.create(input=request.content, model='text-embedding-ada-002').data[0].embedding
+    similarities = cosine_similarity([content_embedding], list(instant_embedding.values()))[0]
+    result = []
+    for index in range(len(similarities)):
+        result.append((CATEGORY_NAME[index], similarities[index]))
+    result.sort(key=lambda x: x[1], reverse=True)
+    logger.info(result)
+    categories = list(map(lambda x: x[0], result[:3]))
+    return categories
