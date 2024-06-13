@@ -232,7 +232,8 @@ async def Create_problems(quiz_id: int, request: Request, db: Session = Depends(
 
 
 @router.post("/{quiz_id}") #우선 모든 질문에 모두 답하는 것으로 함.
-async def Check_User_Answer(problems: List[problem_schema.problem], quiz_id :int, user_answer: List[str]):
+async def Check_User_Answer(request: problem_schema.CheckAnswerRequest):
+    problems, user_answer = request.problems, request.user_answer
 
     history = ""
     type = 0 # 0 : 단답, 주관식 , 1: 객관식
@@ -375,7 +376,8 @@ async def get_problem_api(problem_id: int, request: Request, db: Session = Depen
 
 
 @router.post("/{quiz_id}/feedBack", response_model=Optional[problem_schema.problem])
-async def FeedBack(quiz_id: int, problem_id: int, feedback: int, db: Session = Depends(get_db)):
+async def FeedBack(feedback_request: problem_schema.FeedbackRequest, db: Session = Depends(get_db)):
+    problem_id, feedback = feedback_request.problem_id, feedback_request.feedback
     if feedback < 1 or feedback > 10:
         raise HTTPException(status_code=400, detail="Feedback must be between 1 and 10")
 
