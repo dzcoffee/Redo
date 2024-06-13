@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router'
 import LayoutPage from '@/views/LayoutPage.vue'
+import { useAuthStore } from '@/stores/authStore'
 
 const subRoutes: RouteRecordRaw[] = [
   { path: '/memo', name: 'Memo', component: () => import('@/views/memo/MainPage.vue') },
@@ -8,7 +9,7 @@ const subRoutes: RouteRecordRaw[] = [
     name: 'MemoCreate',
     component: () => import('@/views/memo/MemoCreatePage.vue')
   },
-  { path: 'memo/edit', name: 'MemoEdit', component: () => import('@/views/memo/MainPage.vue') },
+  { path: 'memo/edit/:id', name: 'MemoEdit', component: () => import('@/views/memo/MemoEditPage.vue') },
   { path: 'memo/:id', name: 'MemoView', component: () => import('@/views/memo/MemoPage.vue') },
   { path: '/quiz', name: 'Quiz', component: () => import('@/views/quiz/QuizSettingPage.vue') },
   { path: 'quiz/game', name: 'QuizGame', component: () => import('@/views/quiz/QuizPage.vue') }
@@ -22,7 +23,8 @@ const router = createRouter({
       name: 'home',
       component: LayoutPage,
       children: subRoutes,
-      redirect: '/login'
+      redirect: '/memo',
+      meta: { requiresAuth: true }
     },
     {
       path: '/login',
@@ -40,6 +42,16 @@ const router = createRouter({
       redirect: '/'
     }
   ]
+})
+
+router.beforeEach(async (to, _from, next) => {
+  const authStore = useAuthStore()
+  if (to.matched.some((record) => record.meta.requiresAuth) && !authStore.isAuthenticated) {
+    router.replace('/login')
+    next()
+  } else {
+    next()
+  }
 })
 
 export default router

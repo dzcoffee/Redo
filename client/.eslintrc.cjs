@@ -10,8 +10,10 @@ module.exports = {
     // 'plugin:vue/vue3-recommended',
     'plugin:prettier/recommended',
     '@vue/eslint-config-typescript',
-    '@vue/eslint-config-prettier/skip-formatting'
+    '@vue/eslint-config-prettier',
+    'prettier'
   ],
+  plugins: ['prettier'],
   parserOptions: {
     ecmaVersion: 'latest'
   },
@@ -19,6 +21,13 @@ module.exports = {
     'no-console': 'off',
     'import/prefer-default-export': 'off',
     'no-restricted-syntax': 'off',
+    'vue/html-indent': 'off',
+    'vue/max-attributes-per-line': [
+      {
+        singleline: 5, // 한 줄에 최대 5개의 속성을 허용
+        multiline: 2
+      }
+    ],
     'prettier/prettier': 'off',
     'import/no-cycle': 'off',
     '@typescript-eslint/no-unused-vars': [
@@ -40,7 +49,7 @@ module.exports = {
     'max-len': [
       'error',
       {
-        code: 160,
+        code: 180,
         ignoreStrings: true,
         ignorePattern: 'class="[^"]*"'
       }
@@ -55,12 +64,6 @@ module.exports = {
         allowSeparatedGroups: true
       }
     ],
-    'vue/first-attribute-linebreak': [
-      'error',
-      {
-        singleline: 'ignore',
-        multiline: 'beside'
-      }
-    ]
+    'vue/first-attribute-linebreak': 'off'
   }
 }

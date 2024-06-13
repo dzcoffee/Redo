@@ -1,8 +1,10 @@
 
 from sqlalchemy import Column, Integer, String, Text, DateTime, ForeignKey, VARCHAR, JSON
-from sqlalchemy.orm import relationship
-
 from database import Base
+from datetime import datetime
+
+from domain.memo.memo_schema import MemoCreate
+from utils.time import kst
 
 
 class Memo(Base):
@@ -14,6 +16,19 @@ class Memo(Base):
     title = Column(String, nullable=False)
     content = Column(Text, nullable=False)
     createAt = Column(DateTime, nullable=False)
+
+    @staticmethod
+    def from_dto(dto: MemoCreate, user_id: str):
+        return Memo(
+            writer=user_id,
+            categories=",".join(dto.categories) if dto.categories else "",
+            title= dto.title,
+            content=dto.content,
+            createAt=datetime.now(kst)
+        )
+
+    def __str__(self):
+        return f'Memo(id={self.id}, title={self.title}, categories={self.categories}, content={self.content})'
 
   #  user_entity = relationship("User_entity", back_populates="memo_entities")
    # problem_groups = relationship("Problem_group", back_populates="memo_entity")
@@ -27,6 +42,9 @@ class User(Base):
                       )
     accountID = Column(VARCHAR(20), unique=True)
     password = Column(VARCHAR(30))
+
+    def __str__(self):
+        return f'User(id={self.id}, nickname={self.nickname}, accountID={self.accountID}, password={self.password})'
 
 
 
@@ -52,11 +70,12 @@ class Problem(Base):
     __tablename__ = "problem"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    quizid = Column(Integer, ForeignKey('quiz.id'))
+    quizid = Column(Integer)
     question = Column(Text)
     answer = Column(Text)
-    difficulty = Column(VARCHAR(20), ForeignKey('quiz.difficulty'))
+    difficulty = Column(VARCHAR(20))
     options = Column(JSON)
+    comentary = Column(Text) #해설용
 
     #quiz = relationship("Quiz", back_populates="problem")
 

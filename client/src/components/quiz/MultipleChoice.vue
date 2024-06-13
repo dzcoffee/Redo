@@ -1,27 +1,28 @@
 <template>
-  <v-row class="my-3" align="center">
-    <v-btn class="choice-btn" elevation="0" :color="isSelected ? '#0C3324' : '#67A58D'" @click="onClick">{{ index + 1 }}</v-btn>
-    <span class="pl-4">{{ content }}</span>
+  <v-row class="my-4" align="center">
+    <div>
+      <v-btn class="choice-btn" elevation="0" :color="isSelected ? '#0C3324' : '#67A58D'" @click="onClick">{{ index + 1 }}</v-btn>
+      <span class="pl-4">{{ content }}</span>
+    </div>
   </v-row>
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
-import { useQuizStore } from '@/stores/quizStore';
-
+import { computed } from 'vue'
+import { useQuizStore } from '@/stores/quizStore'
 
 const { problemNumber, index, content } = defineProps({
-  problemNumber: {type: Number, reuiqred: false, default: 0},
+  problemNumber: { type: Number, reuiqred: false, default: 0 },
   index: { type: Number, required: true, default: 0 },
   content: { type: String, required: true, default: '선택지 내용' }
 })
 
-const emits = defineEmits(['select-answer']);
-const quizStore = useQuizStore();
-const isSelected = computed(() => quizStore.answer[problemNumber] === String(index + 1));
+// const emits = defineEmits(['select-answer']);
+const quizStore = useQuizStore()
+const isSelected = computed(() => quizStore.answer[problemNumber] === String(index + 1))
 
 const onClick = (): void => {
-  quizStore.answer[problemNumber] = String(index + 1);
+  quizStore.answer[problemNumber] = String(index + 1)
 }
 </script>
 
