@@ -406,18 +406,19 @@ async def Check_User_Answer(request: problem_schema.CheckAnswerRequest):
         And then Teach me what real answer is and why it is.
         If there are Options and user answer is ['A1', 'A2'], The Question 1 of user answer is 'A1' and the Question 2 of user answer is 'A2'.
         {gpt_answer} is Only A Answer that you verifed by question, '''Do not contain a Question.''' 
-        {gpt_Ture_False} form must be 'True' or 'False'.
+        {gpt_True_False} form must be 'True' or 'False'.
         {gpt_exaplanation_reason} is reason that user answer is T/F and what real answer is and why .
-        And each Set(gpt_answer, gpt_True_False, gpt_answer) must allocated at A Question and Each Set is divided by seperator '@@==========@@'.
+        And each Set(gpt_answer, gpt_True_False, gpt_answer) must allocated at A Question and Each Set is divided by separator '@@==========@@'!!
         Please do not answer with any 'Colon', Attribute like 'gpt_answer:' and bracket.
-        The output format must be as follows with korean.
+        Each field like {gpt_answer}, {gpt_True_False}, {gpt_exaplanation_reason} must be divided by separator '!!==========!!'!!
+        The output format must be as follows with korean!!!!
                     
         Format:
-        {gpt_answer}==========!!
-        {gpt_Ture_False}==========!!
+        {gpt_answer}!!==========!!
+        {gpt_True_False}!!==========!!
         {gpt_exaplanation_reason}@@==========@@
-        {gpt_answer}==========!!
-        {gpt_Ture_False}==========!!
+        {gpt_answer}!!==========!!
+        {gpt_True_False}!!==========!!
         {gpt_exaplanation_reason}@@==========@@
         """
 
