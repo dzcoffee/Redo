@@ -304,7 +304,7 @@ async def Create_problems(quiz_id: int, request: Request, db: Session = Depends(
 
         Top_similaritiy = Top_similarities_Problem_in_embbeding_DB(gpt_Make_embedding_string, db_memo.categories)
 
-        correctness = int((MP_similarities + PP_similarities)*100/2)
+        correctness = int((0.8*MP_similarities + 0.2*PP_similarities)*100)
         logger.info(correctness)
         db_problem.correctness = correctness
 
