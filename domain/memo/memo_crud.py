@@ -1,6 +1,6 @@
 from datetime import datetime
 
-
+from fastapi import HTTPException
 from openai import OpenAI
 import openai
 import logging
@@ -59,6 +59,13 @@ def get_memo_by_user(db: Session, writer: int):
     return memo_list
 
 def update_memo(db: Session, memo: Memo, dto: MemoCreate):
+    moderation_result = moderate_text(dto.content)
+    logger.info(f"Moderation result: {moderation_result}")
+
+    if moderation_result.flagged:
+        logger.error('부적절한 내용이 감지됐습니다.')
+        raise HTTPException(status_code=400, detail="부적절한 내용이 감지됐습니다.")
+
     memo.title = dto.title
     memo.categories = ','.join(dto.categories)
     memo.content = dto.content
