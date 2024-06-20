@@ -1,7 +1,6 @@
 <template>
   <div class="panel user-info">
-    <v-row class="info-pane pa-0 ma-0" align="center" justify="space-between">
-      <img width="50" src="@/assets/logo.png" class="ma-0" />
+    <v-row class="info-pane pa-0 ma-0" align="center" justify="end">
       <span class="hello-msg">{{ authStore.nickname }}의 메모</span>
     </v-row>
     <v-btn class="service-btn ma-1" elevation="1" @click="moveToQuiz">퀴즈 풀기</v-btn>

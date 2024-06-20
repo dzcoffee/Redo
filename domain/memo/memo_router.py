@@ -5,16 +5,14 @@ from database import get_db
 from domain.memo import memo_schema, memo_crud
 from auth.auth import user_from_request
 from auth.auth_validator import AuthValidator
-
-import openai
+from sklearn.metrics.pairwise import cosine_similarity
+from constant.embedding.category import CATEGORY_EMBEDDING, CATEGORY_NAME
 
 import pandas as pd
 import os
-
 from utils.logger import logger
 
 from openai import OpenAI
-import openai
 
 import pandas as pd
 import os
@@ -67,11 +65,10 @@ def memo_detail(memo_id: int, request: Request, db: Session = Depends(get_db)):
 async def memo_create( _memo_create: memo_schema.MemoCreate, request: Request,
                     db: Session = Depends(get_db)):
     user_id = user_from_request(request)
-
     memo_id = memo_crud.create_memo(db=db, memo_create=_memo_create, user_id=user_id)
 
     if memo_id == 'Mod':
-        return {"error": "Inappropriate content detected"}
+        raise HTTPException(status_code= 400, detail = "부적절한 내용이 감지됐습니다.")
 
     embeddings_memo = _memo_create.content
     print("임베딩전메모\n")
@@ -79,7 +76,7 @@ async def memo_create( _memo_create: memo_schema.MemoCreate, request: Request,
 
     res = client.embeddings.create(
         input = embeddings_memo,
-        model = 'text-embedding-3-small'
+        model = 'text-embedding-3-large'
     )
 
     embedding = res.data[0].embedding
@@ -130,4 +127,31 @@ async def memo_update(memo_id: int, dto: memo_schema.MemoCreate, request: Reques
 async def memo_delete(memo_id: int, request: Request, db: Session = Depends(get_db)):
     # 요청한 사용자와 메모 등록자가 같은지 확인
     safe_get_memo(request, memo_id, db)
+    user_id = user_from_request(request)
+
+    path = f'memo_csv/{user_id}_memo.csv'
+    df = pd.read_csv(path)
+    first_col_name = df.columns[0]
+
+    # problem_id와 동일한 값이 있는 행 삭제
+    df = df[df[first_col_name] != memo_id]
+
+    # 수정된 DataFrame을 CSV 파일로 저장
+    df.to_csv(path, index=False)
+
     memo_crud.delete_memo(db, memo_id)
+
+@router.post("/recommend", description="메모 카테고리 추천")
+async def recommend_category(request: memo_schema.RecMemoCategoryReq):
+    # instant_embedding = memo_crud.recommend_category(content)
+    # return memo_crud.recommend_category(content)
+    instant_embedding = CATEGORY_EMBEDDING
+    content_embedding = client.embeddings.create(input=request.content, model='text-embedding-ada-002').data[0].embedding
+    similarities = cosine_similarity([content_embedding], list(instant_embedding.values()))[0]
+    result = []
+    for index in range(len(similarities)):
+        result.append((CATEGORY_NAME[index], similarities[index]))
+    result.sort(key=lambda x: x[1], reverse=True)
+    logger.info(result)
+    categories = list(map(lambda x: x[0], result[:3]))
+    return categories

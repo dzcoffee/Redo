@@ -1,12 +1,15 @@
 from datetime import datetime
 
+
 from openai import OpenAI
 import openai
-
+import logging
 from domain.memo.memo_schema import MemoCreate
 from models import Memo
 from utils.logger import logger
 from sqlalchemy.orm import Session
+from deep_translator import GoogleTranslator
+from constant.embedding.category import CATEGORY_EMBEDDING
 
 OPENAI_API_KEY = "sk-proj-p5uN3gZ9BbVgJGkJIE4OT3BlbkFJJ5y6pvXgzRFYYrcTopyk"
 
@@ -16,10 +19,26 @@ client = OpenAI(
 )
 
 def moderate_text(text: str):
-    logger.info(text)
-    response = client.moderations.create(input=text)
+    logger.info(f"Original text: {text}")
+
+    translator = GoogleTranslator(source='auto', target='en')
+    translated_text = translator.translate(text)
+    logger.info(f"translated response: {translated_text}")
+    response = client.moderations.create(input=translated_text)
     logger.info(f"Moderation response: {response}")
     return response.results[0]
+
+# 코사인 유사도를 기반으로 카테고리 추천
+def recommend_category(content: str):
+    result = {}
+    for category in CATEGORY_EMBEDDING.keys():
+        logger.info(category)
+        res = client.embeddings.create(
+            input = category,
+            model = 'text-embedding-ada-002'
+        )
+        result[category] = res.data[0].embedding
+    return result
 
 def get_memo_list(db: Session):
     memo_list = db.query(Memo)\
@@ -54,8 +73,9 @@ def delete_memo(db: Session, memo_id: int):
 def create_memo(db: Session, memo_create: MemoCreate, user_id: str):
     moderation_result = moderate_text(memo_create.content)
     logger.info(f"Moderation result: {moderation_result}")
-    if moderation_result.flagged: #flagged==True
+    if moderation_result.flagged:  # flagged==True
         # 모데레이션 부적절 감지
+        logger.error('부적절한 내용이 감지됐습니다.')
         flag = 'Mod'
         return flag
 

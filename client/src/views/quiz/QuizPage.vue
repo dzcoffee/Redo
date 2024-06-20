@@ -10,6 +10,7 @@
           :question="problem.question"
           :options="problem.options"
           :problem-number="index"
+          :problem-id="problem.id"
           v-for="(problem, index) in quizStore.problems"
           :key="index"
           :index="index"
@@ -17,7 +18,7 @@
       </div>
     </v-card>
     <v-col align="center">
-      <v-btn width="20%" id="grade-btn" @click="grading" :loading="isLoading">정답 보기</v-btn>
+      <v-btn width="20%" id="grade-btn" @click="grading" :loading="isLoading" :disabled="isGraded">정답 보기</v-btn>
     </v-col>
     <v-spacer></v-spacer>
   </v-col>
@@ -35,20 +36,31 @@ const router = useRouter()
 const quizStore = useQuizStore()
 
 const isLoading = ref(false)
+const isGraded = ref(false)
 
 const grading = async (): Promise<void> => {
   isLoading.value = true
-  const res = await postData(
-    `/quiz/game/${quizStore.quizId}?user_answer=${encodeURIComponent(quizStore.answer.toString())}`,
-    quizStore.problems
-  ).catch(() => showToast('error', '풀이 요청에 실패했습니다.'))
-  showToast('info', '풀이를 확인하세요.')
-  quizStore.rawAnswer = res
-  quizStore.state = QuizState.GRADE
+  let result
+  try {
+    result = await postData(`/quiz/game/${quizStore.quizId}`, { problems: quizStore.problems, user_answer: quizStore.answer })
+    showToast('info', '풀이를 확인하세요.')
+    isGraded.value = true
+    quizStore.rawAnswer = result
+    quizStore.state = QuizState.GRADE
+  } catch (e: any) {
+    console.log(e)
+    if (e.response.status === 400) {
+      showToast('error', '부적절한 내용이 감지됐습니다. 내용을 수정해주세요.')
+    } else {
+      showToast('error', '풀이 요청에 실패했습니다. 새로고침을 해주세요.')
+    }
+  }
   isLoading.value = false
+  // console.log(res)
 }
 
 onMounted(() => {
+  // console.log(quizStore)
   quizStore.answer = new Array<string>(quizStore.problems.length).fill('')
   quizStore.state = QuizState.TEST
 })
