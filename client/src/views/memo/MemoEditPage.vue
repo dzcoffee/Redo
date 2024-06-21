@@ -40,10 +40,16 @@ const onUpdate = async (): Promise<void> => {
     showToast('error', '빈 칸을 채워주세요.(제목, 카테고리, 내용)')
     return
   } else {
-    await patchDataById('/memo', route.params.id as string, { title: title.value, categories: categories.value, content: content.value }).then(() => {
-      showToast('success', '수정 완료')
-      router.push(`/memo/${route.params.id}`)
-    })
+    showToast('info', '수정 전 Moderation 수행 중... 잠시만 기다려주세요.')
+    await patchDataById('/memo', route.params.id as string, { title: title.value, categories: categories.value, content: content.value })
+      .then(() => {
+        showToast('success', '수정 완료')
+        router.push(`/memo/${route.params.id}`)
+      })
+      .catch((e) => {
+        if (e.response && e.response.data?.detail !== undefined) showToast('error', '부적절한 내용이 감지됐습니다. 내용을 수정해주세요.')
+        else showToast('error', '요청 실패')
+      })
   }
 }
 

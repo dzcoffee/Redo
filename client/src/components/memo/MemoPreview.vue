@@ -12,10 +12,10 @@ import { useMarkdownStore } from '@/stores/markdownStore'
 const { title, content } = storeToRefs(useMarkdownStore())
 
 const preview = computed(() => {
-  console.log(content.value)
+  // console.log(content.value)
   let mid = content.value.replace(/\n+/g, '\n')
   let changedText = marked(mid) as string
-  console.log(changedText)
+  // console.log(changedText)
   changedText = changedText.replaceAll('&lt;', '<')
   changedText = changedText.replaceAll('&gt;', '>')
   // changedText = changedText.replaceAll('&quot;', '"')
