@@ -59,8 +59,8 @@ const selectAnswer = (prop: string): void => {
 }
 
 const preview = computed(() => {
-  let mid = question.replace(/\n(?=\n)/g, '\n<br>')
-  let changedText = marked(mid, { breaks: true }) as string
+  let mid = question.replace(/\n+/g, '\n')
+  let changedText = marked(mid) as string
   changedText = changedText.replaceAll('&lt;', '<')
   changedText = changedText.replaceAll('&gt;', '>')
   changedText = changedText.replaceAll('&quot;', '"')

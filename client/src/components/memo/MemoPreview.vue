@@ -12,11 +12,13 @@ import { useMarkdownStore } from '@/stores/markdownStore'
 const { title, content } = storeToRefs(useMarkdownStore())
 
 const preview = computed(() => {
-  let mid = content.value.replace(/\n(?=\n)/g, '\n<br>')
-  let changedText = marked(mid, { breaks: true }) as string
+  console.log(content.value)
+  let mid = content.value.replace(/\n+/g, '\n')
+  let changedText = marked(mid) as string
+  console.log(changedText)
   changedText = changedText.replaceAll('&lt;', '<')
   changedText = changedText.replaceAll('&gt;', '>')
-  changedText = changedText.replaceAll('&quot;', '"')
+  // changedText = changedText.replaceAll('&quot;', '"')
   return changedText
 })
 
@@ -24,8 +26,8 @@ onMounted(() => {
   marked.setOptions({
     renderer: new marked.Renderer(),
     gfm: true,
-    breaks: true,
-    pedantic: false
+    breaks: true
+    // pedantic: false
   })
 })
 </script>
