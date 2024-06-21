@@ -40,8 +40,10 @@ const onUpdate = async (): Promise<void> => {
     showToast('error', '빈 칸을 채워주세요.(제목, 카테고리, 내용)')
     return
   } else {
-    await patchDataById('/memo', route.params.id as string, { title: title.value, categories: categories.value, content: content.value })
-    router.push(`/memo/${route.params.id}`)
+    await patchDataById('/memo', route.params.id as string, { title: title.value, categories: categories.value, content: content.value }).then(() => {
+      showToast('success', '수정 완료')
+      router.push(`/memo/${route.params.id}`)
+    })
   }
 }
 

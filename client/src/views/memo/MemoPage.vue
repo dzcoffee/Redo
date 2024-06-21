@@ -24,7 +24,7 @@ import { useRoute } from 'vue-router'
 const markdownStore = useMarkdownStore()
 const route = useRoute()
 const content = computed(() => {
-  let mid = markdownStore.content.replace(/\n(?=\n)/g, '\n<br>')
+  let mid = markdownStore.content.replace(/\n+/g, '\n')
   let changedText = marked(mid) as string
   changedText = changedText.replaceAll('&lt;', '<')
   changedText = changedText.replaceAll('&gt;', '>')
