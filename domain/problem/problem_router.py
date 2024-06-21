@@ -70,7 +70,7 @@ async def Create_problems(quiz_id: int, request: Request, db: Session = Depends(
     df = pd.read_csv(f'memo_csv/{user_id}_memo.csv')
     result_row = df[df.iloc[:, 0] == db_memo.id]
 
-    logger.info(result_row)
+    #logger.info(result_row)
 
     if not result_row.empty:
         memo_embeddings = result_row.iloc[0, 1]
@@ -93,28 +93,28 @@ async def Create_problems(quiz_id: int, request: Request, db: Session = Depends(
             gpt_quiz_count = db_quiz.count #만약 해당 카테고리의 csv파일 없으면 원래대로 gpt한테 전부 생성 요청
         
 
-        logger.info(embeddings_quiz_count_final)
+        #logger.info(embeddings_quiz_count_final)
 
     embedded_problem_list = []
     print("임베디드프라블럼 추가 전")
     added_embedded_problem_count = 0
-    logger.info(embedded_problem_list)
+    #logger.info(embedded_problem_list)
     if(embeddings_quiz_count_final!=0): #만약 가져온 문제 id가 있으면
         for db_problem_id in embedded_problem:
             if added_embedded_problem_count == embeddings_quiz_count:
                 break
             db_problem_id = int(db_problem_id)
-            logger.info(db_problem_id)
+            #logger.info(db_problem_id)
             saved_problem = problem_crud.get_problem(db, db_problem_id)
             saved_problem.correctness = 101 # 101 : 임베딩 DB문제 코드
             if(db_quiz.type == "객관식"): #객관식에 맞는 option이 있는 문제인 경우 가져오기
                 if(saved_problem.options):
-                    logger.info(saved_problem)
+                    #logger.info(saved_problem)
                     embedded_problem_list.append(saved_problem)
                     added_embedded_problem_count += 1
             else: #
                 if(saved_problem.options == []):
-                    logger.info(saved_problem)
+                    #logger.info(saved_problem)
                     embedded_problem_list.append(saved_problem)
                     added_embedded_problem_count += 1
                 else:
@@ -235,11 +235,11 @@ async def Create_problems(quiz_id: int, request: Request, db: Session = Depends(
     response = client.chat.completions.create(model=model, messages=messages) #temperature 0.8이 한국어에 가장 적합하다는 정보가 있어서 적용시켜봄.
     answer = response.choices[0].message.content #GPT의 답변 받는 거임.
 
-    logger.info(answer)
+    #logger.info(answer)
 
     divided_problems = answer.split("##==========##") #문제, Option, Answer, commentary 기준으로 나누기
 
-    logger.info(divided_problems)
+    #logger.info(divided_problems)
 
     problem_list = [] #'문제', '옵션' / '문제', '옵션' /.... 이런식으로 저장됨. 단 옵션은 없으면 None으로 처리
 
@@ -259,20 +259,20 @@ async def Create_problems(quiz_id: int, request: Request, db: Session = Depends(
                 options = None
             problem_counter += 1  # 다음 문제로 이동
 
-        logger.info(quiz_id)
-        logger.info(question)
-        logger.info(db_quiz.difficulty)
-        logger.info(options) 
+        #logger.info(quiz_id)
+        #logger.info(question)
+        #logger.info(db_quiz.difficulty)
+        #logger.info(options) 
 
         Quiz_ans = divided_problems[problem_counter].strip()
         problem_counter += 1
 
-        logger.info(Quiz_ans)
+        #logger.info(Quiz_ans)
 
         Quiz_commentary  = divided_problems[problem_counter].strip()
         problem_counter += 1
 
-        logger.info(Quiz_commentary)
+        #logger.info(Quiz_commentary)
 
         # 문제 객체 생성 및 리스트에 추가
         db_problem = problem_crud.create_problem(db, quiz_id=quiz_id, question=question, options=options or [], difficulty=db_quiz.difficulty, answer = Quiz_ans, comentary= Quiz_commentary)
@@ -282,7 +282,7 @@ async def Create_problems(quiz_id: int, request: Request, db: Session = Depends(
         else :
             gpt_embeddings_input = db_problem.question
     
-        logger.info(gpt_embeddings_input)
+        #logger.info(gpt_embeddings_input)
 
         res = client.embeddings.create(
             input = gpt_embeddings_input,
@@ -298,18 +298,18 @@ async def Create_problems(quiz_id: int, request: Request, db: Session = Depends(
 
         MP_similarities = cos_sim(memo_embeddings_string, gpt_Make_embedding_array) # 메모 내용과 생성 문제 내용 유사도
         print("유사도\n")
-        logger.info(MP_similarities)
+        #logger.info(MP_similarities)
 
         PP_similarities = similarities_Problem_in_embbeding_DB(gpt_Make_embedding_string, db_memo.categories) # 임베딩 문제(여러 개)와 생성 문제
 
         Top_similaritiy = Top_similarities_Problem_in_embbeding_DB(gpt_Make_embedding_string, db_memo.categories)
 
         correctness = int((0.8*MP_similarities + 0.2*PP_similarities)*100)
-        logger.info(correctness)
+        #logger.info(correctness)
         db_problem.correctness = correctness
 
         problem_list.append(db_problem)
-        logger.info(db_problem)
+        #logger.info(db_problem)
 
         if(Top_similaritiy*100 <= 80):
             path = f'problem_csv/{db_memo.categories}_problems.csv'
@@ -346,7 +346,7 @@ async def Check_User_Answer(request: problem_schema.CheckAnswerRequest):
         moderation_result = moderate_text(user_answer_for_problem) #메모검증때 썼던 함수
         # 부적절한 내용 감지한 경우 처리
         if moderation_result.flagged:
-            logger.info(f"User's answer Moderation result: {moderation_result}")
+            #logger.info(f"User's answer Moderation result: {moderation_result}")
             logger.warning(f"Inappropriate content detected in user's answer for problem {index + 1}.")
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
                             detail="부적절한 언어 감지")
@@ -356,14 +356,14 @@ async def Check_User_Answer(request: problem_schema.CheckAnswerRequest):
     
     problem_count = 0
     if(type == 1):
-        logger.info("객관식임\n")
+        #logger.info("객관식임\n")
         for problem in problems:
             check_answer = user_answer[problem_count] #N번째 문제의 유저 답변 
             check_answer = int(check_answer) - 1  # str형 -> int형, 1번부터 ~ -> 0번부터 ~
             User_TF = "False"
-            logger.info(check_answer)
-            logger.info(problem.answer)
-            logger.info(problem.options[check_answer])
+            #logger.info(check_answer)
+            #logger.info(problem.answer)
+            #logger.info(problem.options[check_answer])
             if problem.options[check_answer] == problem.answer: #해당 선지 번호의 답변과 problem.answer가 동일하다면 True
                 User_TF = "True"
             
@@ -378,13 +378,13 @@ async def Check_User_Answer(request: problem_schema.CheckAnswerRequest):
             problem_count = problem_count +1
 
              # 결과 출력
-            logger.info(final_dict)
+            #logger.info(final_dict)
             
 
     if(type == 0):
-        logger.info("주관식임\n")
+        #logger.info("주관식임\n")
         count = 1
-        logger.info(problems)
+        #logger.info(problems)
         for problem in problems: 
             history += f"Question {count} : {problem.question}\n"
 
@@ -398,7 +398,7 @@ async def Check_User_Answer(request: problem_schema.CheckAnswerRequest):
             #     history += "선택지 없음\n\n"
             count = count +1
 
-        logger.info("we are out\n")
+        #logger.info("we are out\n")
         model = MODEL
 
         text_content = """
@@ -432,17 +432,17 @@ async def Check_User_Answer(request: problem_schema.CheckAnswerRequest):
         response = client.chat.completions.create(model=model, messages=messages)
         answer = response.choices[0].message.content
 
-        logger.info(answer)
+        #logger.info(answer)
 
-        logger.info("\n\nit is answer \n\n ")
+        #logger.info("\n\nit is answer \n\n ")
 
         sets = answer.strip().split("@@==========@@")
 
 
-        logger.info(sets)
+        #logger.info(sets)
 
-        logger.info("\nthis is user answer : \n")
-        logger.info(user_answer)
+        #logger.info("\nthis is user answer : \n")
+        #logger.info(user_answer)
 
         # 각 세트를 순회하며 처리
         count_num = 0 #아래 problems와 user_answer 체크용 변수
@@ -467,11 +467,11 @@ async def Check_User_Answer(request: problem_schema.CheckAnswerRequest):
                 count_num = count_num+1
 
         # 결과 출력
-        logger.info(final_dict)
+        #logger.info(final_dict)
 
        
 
-        logger.info("ended\n")
+        #logger.info("ended\n")
 
     return final_dict
 
@@ -537,6 +537,9 @@ def get_problems_from_embeddings(embeddings_quiz_count, memo_embeddings, categor
         problem_embeddings = [np.fromstring(x[1:-1], sep=',') for x in problem_embeddings] # 문자열을 numpy 배열로 변환
 
         memo_embeddings = np.fromstring(memo_embeddings[1:-1], sep=',')
+
+        #logger.info(category)
+        #logger.info(problem_embeddings)
         
         # 코사인 유사도 계산
         similarities = [cos_sim(memo_embeddings, pe) for pe in problem_embeddings]
@@ -544,7 +547,7 @@ def get_problems_from_embeddings(embeddings_quiz_count, memo_embeddings, categor
         # 유사도와 인덱스를 함께 유지하며 0.5 이상인 유사도 필터링(0.5이상은 유사한 것으로 판단)
         filtered_similarities = [(i, sim) for i, sim in enumerate(similarities) if sim < 0.5 and sim > 0.3]
 
-        logger.info(filtered_similarities)
+        #logger.info(filtered_similarities)
 
         # 유사도가 높은 순으로 정렬하고 상위 embeddings_quiz_count개 선택
         filtered_similarities.sort(key=lambda x: x[1], reverse=True)
