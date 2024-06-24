@@ -33,7 +33,7 @@ from domain.problem import problem_schema, problem_crud
 from pydantic import BaseModel, ValidationError
 
 
-OPENAI_API_KEY = "sk-proj-p5uN3gZ9BbVgJGkJIE4OT3BlbkFJJ5y6pvXgzRFYYrcTopyk"
+OPENAI_API_KEY = "your_key"
 
 
 client = OpenAI(

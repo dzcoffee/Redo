@@ -11,7 +11,7 @@ from sqlalchemy.orm import Session
 from deep_translator import GoogleTranslator
 from constant.embedding.category import CATEGORY_EMBEDDING
 
-OPENAI_API_KEY = "sk-proj-p5uN3gZ9BbVgJGkJIE4OT3BlbkFJJ5y6pvXgzRFYYrcTopyk"
+OPENAI_API_KEY =  "your_key"
 
 
 client = OpenAI(
